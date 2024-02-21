@@ -1,2 +1,3 @@
 # .config
-all config files that i customized for every thing im my system
+- all config files that i customized for every thing im my system
+- make sure to check and change the file pathes on every file...
