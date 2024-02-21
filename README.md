@@ -1,3 +1,5 @@
 # .config
 - all config files that i customized for every thing im my system
-- make sure to check and change the file pathes on every file...
+- you have to make directory then copy each one there
+- make sure to make the auto start excutable by running this command :$chmod +x .config/qtile/autostart.sh
+
