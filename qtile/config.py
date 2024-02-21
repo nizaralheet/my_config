@@ -132,9 +132,7 @@ keys = [
 #GROUPS
 
 #################################################################
-#groups = [Group(i) for i in "12345"]
-#group_labels=['-','=','≡','△','□']
-#group_name=['1','2','3','4','5']
+
 groups = [
         Group('1',label= '-'),
         Group('2',label= '='),
@@ -142,12 +140,7 @@ groups = [
         Group('4',label= '△'),
         Group('5',label= '□'),
         ]
-#for i in range(len(group_name)):
- #   groups.append(
-  #          Group(
-   #             name=group_name[i],
-    #            label=group_labels[i]
-     #           ))
+
 for i in groups:
 
     keys.extend(
@@ -178,7 +171,7 @@ for i in groups:
 
 #################################################################
 layouts = [
-      #Try more layouts by unleashing below layouts.
+     #Try more layouts by unleashing below layouts.
      #layout.Stack(num_stacks=2),
      #layout.Bsp(),
      #layout.Matrix(),
@@ -189,9 +182,20 @@ layouts = [
      #layout.TreeTab(border_width=3, margin= 6, border_focus="ffffff", border_normal="ffff44", active_bg='99ccff', active_fg='000000',sections=[""]),
      #layout.VerticalTile(),
      #layout.Zoomy(),
-     layout.Columns(margin=9, border_focus='cce6ff', border_normal='0059b3', border_on_single=True,border_width= 5),
-     layout.Max(margin=9, border_focus='cce6ff', border_normal='ffff44',border_width=5),
-    # layout.Floating( border_focus='#ffffff', border_normal='#0059b3',border_width=5),
+     layout.Columns(
+         margin=9,
+         border_focus='cce6ff',
+         border_normal='0059b3',
+         border_on_single=True,
+         border_width= 5
+     ),
+     layout.Max(
+         margin=9,
+         border_focus='cce6ff',
+         border_normal='ffff44',
+         border_width=5
+     ),
+    
 
 ]
 #################################################################
@@ -205,12 +209,12 @@ widget_defaults = dict(
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
-powerlinea = {
+powerlineA = {
     "decorations": [
         PowerLineDecoration(path='forward_slash')
     ]
 }
-powerlineb = {
+powerlineB = {
     "decorations": [
         PowerLineDecoration(path='back_slash')
     ]
@@ -232,7 +236,7 @@ roundshape = {
 #################################################################
 screens = [
     Screen(
-        wallpaper='/home/nizar/Downloads/55.jpg',
+        wallpaper='.config/qtile/wallpaper.jpg',
         wallpaper_mode='fill',
         top=bar.Bar(
             [
@@ -256,7 +260,7 @@ screens = [
                     width=7,
                     length=7,
                     background='0080ff',
-                    **powerlinea
+                    **powerlineA
                     ),
  
 
@@ -268,13 +272,13 @@ screens = [
                     highlight_color=['0080ff','0059b3'],
                     this_current_screen_border="004080",
                     margin_x=-1,
-                    **powerlinea,
+                    **powerlineA,
                     ),
 
 
                 widget.WindowName(
                     background="00000000",
-                    **powerlineb,
+                    **powerlineB,
                     empty_group_string='What a great wallpaper...',
                     ),
 
@@ -284,7 +288,7 @@ screens = [
                     background='0062b3',
                     foreground='000000',
                     format= 'CPU:{load_percent}%',
-                    **powerlineb
+                    **powerlineB
                     ),
 
                  widget.UPowerWidget(
@@ -304,7 +308,7 @@ screens = [
                     text_displaytime=3666,
                     battery_height=13,
                     battery_width=27,
-                    **powerlineb
+                    **powerlineB
                     ),
 
 
@@ -316,15 +320,9 @@ screens = [
                     colour_have_updates='000000',
                     colour_no_updates='000000',
                     display_format='Updates:{updates}',
-                    **powerlineb,
+                    **powerlineB,
                     ),
 
-
-                #widget.ALSAWidget(mode='icon'),
-
-
-               # widget.PulseVolume(),
-               #widget.Mpris2(popup_layout=COMPACT_LAYOUT), 
 
                 # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
                 # widget.StatusNotifier(),
