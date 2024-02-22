@@ -1,4 +1,4 @@
-# my config files
+# Important notes !!!
 - all config files that i have customized for every thing im my system
 - make sure to make the autostart.sh excutable by running this command :
 - $ chmod +x .config/qtile/autostart.sh
