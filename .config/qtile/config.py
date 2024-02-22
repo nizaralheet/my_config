@@ -240,7 +240,7 @@ roundshape = {
 #################################################################
 screens = [
     Screen(
-        wallpaper='.config/qtile/55.jpg',
+        wallpaper='.config/qtile/wallpaper.jpg',
         wallpaper_mode='fill',
         top=bar.Bar(
             [
