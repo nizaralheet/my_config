@@ -240,7 +240,7 @@ roundshape = {
 #################################################################
 screens = [
     Screen(
-        wallpaper='/home/nizar/Downloads/55.jpg',
+        wallpaper='.config/qtile/55.jpg',
         wallpaper_mode='fill',
         top=bar.Bar(
             [
@@ -253,7 +253,7 @@ screens = [
  
                               
                 widget.Image(
-                    filename='/home/nizar/Downloads/logo.png',
+                    filename='.config/qtile/logo.png',
                     scale=True,
                     margin_x=-3,
                     background='0080ff',
