@@ -11,4 +11,4 @@
 - Python-pywal
 - Upower
 - Qtile extras
-  <h3>they are all available on pacman library</h3>
+<h3>they are all available on pacman library</h3>
