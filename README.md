@@ -6,6 +6,7 @@
 - my thunar theme : [Mid Night GTK](https://aur.archlinux.org/packages/midnight-gtk-theme-git)
 - you can find the icons and font by pacman : adobe-source-code-pro-fonts & arc-icon-theme
 # Requirements
+- Python
 - Python-psutil
 - Python-dbus-next
 - Python-pywal
