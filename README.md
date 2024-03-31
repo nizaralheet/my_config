@@ -10,6 +10,7 @@
 - Python-psutil
 - Python-dbus-next
 - Python-pywal
+- Python-mypy
 - Upower
 - Qtile extras
 <h3>they are all available on pacman library</h3>
