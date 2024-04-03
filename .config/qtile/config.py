@@ -339,7 +339,7 @@ screens = [
 
                 widget.QuickExit(
                         countdown_format='[   {}   ]',
-                        default_text='SHUTDOWN',
+                        default_text='LOGOUT',
                         background="0080ff",
                         padding_x='3',
                         **roundshape
