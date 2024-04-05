@@ -7,4 +7,3 @@ padding={x=25,y=20}
 size =14.0
 normal ={ family = "Source Code Pro", style = "Regular" }
 bold ={family = "mono" ,style ="Bold"}
- 
