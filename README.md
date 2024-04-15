@@ -1,3 +1,5 @@
+# this is my qtiel config , simple & clean 
+
 # Important notes !!!
 - all config files that i have customized for every thing im my system are here
 - make sure to make the autostart.sh excutable by running this command :
