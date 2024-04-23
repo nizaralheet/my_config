@@ -16,13 +16,7 @@
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
 ###################################################
 #    ____                                __       #
 #   /  _/____ ___   ____   ____   _____ / /_ _____#
@@ -35,6 +29,7 @@ import os
 import subprocess
 from libqtile import bar, layout, qtile, hook
 from qtile_extras import widget
+from libqtile.widget import backlight
 from qtile_extras.widget.decorations import PowerLineDecoration
 from qtile_extras.widget.decorations import RectDecoration
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
@@ -53,15 +48,27 @@ def autostart():
 mod = "mod4"
 terminal = "alacritty"
 home= os.path.expanduser("~")
-#########################################################################
-#    __ __                 ____   _             __ _                    #
-#   / //_/___   __  __    / __ ) (_)____   ____/ /(_)____   ____ _ _____#
-#  / ,<  / _ \ / / / /   / __  |/ // __ \ / __  // // __ \ / __ `// ___/#
-# / /| |/  __// /_/ /   / /_/ // // / / // /_/ // // / / // /_/ /(__  ) #
-#/_/ |_|\___/ \__, /   /_____//_//_/ /_/ \__,_//_//_/ /_/ \__, //____/  #
-#            /____/                                      /____/         #
-#########################################################################
+##########################################################
+# _  __            ____  _           _ _                 #
+#| |/ /           |  _ \(_)         | (_)                #
+#| ' / ___ _   _  | |_) |_ _ __   __| |_ _ __   __ _ ___ #
+#|  < / _ | | | | |  _ <| | '_ \ / _` | | '_ \ / _` / __|#
+#| . |  __| |_| | | |_) | | | | | (_| | | | | | (_| \__ \#
+#|_|\_\___|\__, | |____/|_|_| |_|\__,_|_|_| |_|\__, |___/#
+#           __/ |                               __/ |    #
+#          |___/                               |___/     #
+##########################################################
 keys = [
+    Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl set +5%")),
+
+    Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl set 5%-")),
+
+    Key([], "XF86AudioMute", lazy.spawn("amixer -q set Master toggle")),
+
+    Key([], "XF86AudioLowerVolume", lazy.spawn("amixer -c 0 sset Master 3- unmute")),
+
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("amixer -c 0 sset Master 3+ unmute")),
+
     Key([mod], "Left", lazy.layout.left(), desc="Move focus to left"),
 
     Key([mod], "Right", lazy.layout.right(), desc="Move focus to right"),
@@ -131,7 +138,7 @@ keys = [
         lazy.spawn("rofi -show drun"), desc="Spawn rofi app laucher"),
     Key(
         [mod], "b",
-        lazy.spawn("firefox"), desc="spawn firefox browser"),
+        lazy.spawn("brave"), desc="spawn brave browser"),
 
 ]
 ###########################################
@@ -195,7 +202,7 @@ layouts = [
      #layout.Tile(),
      #layout.TreeTab(border_width=3, margin= 6, border_focus="ffffff", border_normal="ffff44", active_bg="99ccff", active_fg="000000",sections=[""]),
      #layout.VerticalTile(),
-     #layout.Zoomy(),
+     #layout.Zoomy( margin=9,border_focus="cce6ff",border_normal="0059b3",border_on_single=True,border_width= 5),
      layout.Columns(
          margin=9,
          border_focus="cce6ff",
@@ -212,14 +219,17 @@ layouts = [
     # layout.Floating( border_focus="#ffffff", border_normal="#0059b3",border_width=5),
 
 ]
-###############################################################################################
-# _       __ _      __              __            ____         ____               __ __       #
-#| |     / /(_)____/ /____ _ ___   / /_ _____    / __ \ ___   / __/__  __ ____ _ / // /_ _____#
-#| | /| / // // __  // __ `// _ \ / __// ___/   / / / // _ \ / /_ / / / // __ `// // __// ___/#
-#| |/ |/ // // /_/ // /_/ //  __// /_ (__  )   / /_/ //  __// __// /_/ // /_/ // // /_ (__  ) #
-#|__/|__//_/ \__,_/ \__, / \___/ \__//____/   /_____/ \___//_/   \__,_/ \__,_//_/ \__//____/  #
-#                  /____/                                                                     #
-###############################################################################################
+#########################################
+#__        ___     _            _       #
+#\ \      / (_) __| | __ _  ___| |_ ___ #
+# \ \ /\ / /| |/ _` |/ _` |/ _ | __/ __|#
+#  \ V  V / | | (_| | (_| |  __| |_\__ \#
+#   \_/\_/  |_|\__,_|\__, |\___|\__|___/#
+#  __| | ___ / _| __ |___/ _| | |_ ___  #
+# / _` |/ _ | |_ / _` | | | | | __/ __| #
+#| (_| |  __|  _| (_| | |_| | | |_\__ \ #
+# \__,_|\___|_|  \__,_|\__,_|_|\__|___/ #
+#########################################
 widget_defaults = dict(
     font="Source Code Pro",
     fontsize=15,
@@ -246,13 +256,13 @@ roundshape = {
     ],
     "padding": 10,
 }
-#######################################################
-#         _____                                       #
-#        / ___/ _____ _____ ___   ___   ____          #
-#        \__ \ / ___// ___// _ \ / _ \ / __ \         #
-#       ___/ // /__ / /   /  __//  __// / / /         #
-#      /____/ \___//_/    \___/ \___//_/ /_/          #
-#######################################################
+##################################################
+#         _____                                  #
+#        / ___/ _____ _____ ___   ___   ____     #
+#        \__ \ / ___// ___// _ \ / _ \ / __ \    #
+#       ___/ // /__ / /   /  __//  __// / / /    #
+#      /____/ \___//_/    \___/ \___//_/ /_/     #
+##################################################
 screens = [
     Screen(
         wallpaper=".config/qtile/wallpaper.jpg",
@@ -265,6 +275,7 @@ screens = [
                     length=7,
                     background="0080ff",
                     ),
+
  
                               
                 widget.Image(
@@ -272,8 +283,15 @@ screens = [
                     scale=True,
                     margin_x=-3,
                     background="0080ff",
-                    
                     ),
+                
+                widget.Clock(
+                        format=" %I:%M%p ", 
+                        background="0080ff", 
+                        foreground="#000000",
+                        spacing="2"
+                        ),
+
 
                widget.Spacer(
                     width=7,
@@ -300,13 +318,20 @@ screens = [
                     **powerlineB,
                     empty_group_string="What a great wallpaper...",
                     ),
-
                 
+
+            
+                widget.Memory(
+                    background="#0062b3",
+                    foreground="#000000",
+                    format="RAM:{MemPercent}%",
+                    #**powerlineB
+                    ),
 
                 widget.CPU(
                     background="0062b3",
                     foreground="000000",
-                    format= "CPU:{load_percent}%",
+                    format= "| CPU:{load_percent}%",
                     **powerlineB
                     ),
 
@@ -330,9 +355,17 @@ screens = [
                     **powerlineB,
                     ),
 
+                 widget.WiFiIcon(
+                    **powerlineB,
+                    background="#0070cc",
+                    active_colour="#1e1e1e",
+                    foreground="#000000",
+                    
+                    ),
 
+                
                 widget.CheckUpdates(
-                    distro="Arch",
+                    distro="Arch_checkupdates",
                     no_update_string="No updates",
                     background="#0073e6", 
                     foreground="000000",
@@ -343,17 +376,26 @@ screens = [
                     ),
 
 
-
+                 widget.OpenWeather(
+                    app_key = "4cf3731a25d1d1f4e4a00207afd451a2",
+                    cityid = "250441",
+                    format = '{main_temp}° {icon}',
+                    metric = True,
+                    
+                    background = "#0080ff",
+                    foreground = "#000000",
+                     
+                        ),
 
                 widget.Clock(
-                        format=" %m/%d %I:%M%p ", 
+                        format=" %d/%m ", 
                         background="0080ff", 
                         foreground="#000000",
                         spacing="2"
                         ),
 
                 widget.QuickExit(
-                        countdown_format="[   {}   ]",
+                        countdown_format="[ {}  ]",
                         default_text="LOGOUT",
                         background="0080ff",
                         padding_x="3",
