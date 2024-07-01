@@ -1,11 +1,3 @@
-# Copyright (c) 2010 Aldo Cortesi
-# Copyright (c) 2010, 2014 dequis
-# Copyright (c) 2012 Randall Ma
-# Copyright (c) 2012-2014 Tycho Andersen
-# Copyright (c) 2012 Craig Barnes
-# Copyright (c) 2013 horsik
-# Copyright (c) 2013 Tao Sauvage
-#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -15,7 +7,6 @@
 #
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-#
 
 ###################################################
 #    ____                                __       #
@@ -27,17 +18,74 @@
 ###################################################
 import os 
 import subprocess
+import json
+import qtile_extras.hook
 from libqtile import bar, layout, qtile, hook
 from qtile_extras import widget
-from libqtile.widget import backlight
 from qtile_extras.widget.decorations import PowerLineDecoration
+#from qtile_extras.popup.toolkit import PopupRelativeLayout, PopupSlider, PopupText, PopupWidget
 from qtile_extras.widget.decorations import RectDecoration
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal, send_notification
+from libqtile.utils import send_notification
+#from libqtile.widget import backlight
 
 
 
+# here is the colors that we gonna use from pywal
+
+colors = os.path.expanduser('~/.cache/wal/colors.json')
+colordict = json.load(open(colors))
+Color0=(colordict['colors']['color0'])
+Color1=(colordict['colors']['color1'])
+Color2=(colordict['colors']['color2'])
+Color3=(colordict['colors']['color3'])
+Color4=(colordict['colors']['color4'])
+Color5=(colordict['colors']['color5'])
+Color6=(colordict['colors']['color6'])
+Color7=(colordict['colors']['color7'])
+Color8=(colordict['colors']['color8'])
+Color9=(colordict['colors']['color9'])
+Color10=(colordict['colors']['color10'])
+Color11=(colordict['colors']['color11'])
+Color12=(colordict['colors']['color12'])
+Color13=(colordict['colors']['color13'])
+Color14=(colordict['colors']['color14'])
+Color15=(colordict['colors']['color15'])
+
+Btop=({"Button1":lazy.spawn("kitty -e btop")})
+
+# this hooks need to work on
+
+
+
+#@qtile_extras.hook.subscribe.up_battery_full
+# def battery_full(battery_name):
+#    send_notification("Power HQ",  "Battery is fully charged.")
+
+
+
+@qtile_extras.hook.subscribe.up_battery_low
+def battery_low(battery_name):
+    send_notification("Power HQ", "Battery is running low.")
+
+@qtile_extras.hook.subscribe.up_battery_critical
+def battery_critical(battery_name):
+    send_notification(battery_name, "Battery is critically low. Plug in power cable.")
+
+@hook.subscribe.startup
+def run_every_startup():
+    send_notification("qtile", "Startup : Done !!")
+
+@qtile_extras.hook.subscribe.up_power_connected
+def plugged_in():
+    send_notification("Power HQ","The power have been pluged in , Charging Up")
+    #qtile.spawn("ffplay power_on.wav")
+
+@qtile_extras.hook.subscribe.up_power_disconnected
+def unplugged():
+    send_notification("Power HQ", "The power cable is disconnected , Discharging")
+    qtile.spawn("ffplay power_off.wav")
 
 
 @hook.subscribe.startup_once
@@ -46,7 +94,8 @@ def autostart():
     subprocess.Popen([home])
 
 mod = "mod4"
-terminal = "alacritty"
+alt = "mod1"
+terminal = "kitty"
 home= os.path.expanduser("~")
 ##########################################################
 # _  __            ____  _           _ _                 #
@@ -59,86 +108,147 @@ home= os.path.expanduser("~")
 #          |___/                               |___/     #
 ##########################################################
 keys = [
-    Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl set +5%")),
+    Key([mod], "Shift_R",  
+        lazy.widget["keyboardlayout"].next_keyboard()
+    ),
+    Key([], "XF86MonBrightnessUp", 
+        lazy.spawn("brightnessctl set +5%"),
+    ),
 
-    Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl set 5%-")),
 
-    Key([], "XF86AudioMute", lazy.spawn("amixer -q set Master toggle")),
+    Key([], "XF86MonBrightnessDown", 
+        lazy.spawn("brightnessctl set 5%-"),
+    ),
 
-    Key([], "XF86AudioLowerVolume", lazy.spawn("amixer -c 0 sset Master 3- unmute")),
+    Key([], "XF86AudioMute",
+        lazy.spawn("amixer -q set Master toggle")
+        ),
 
-    Key([], "XF86AudioRaiseVolume", lazy.spawn("amixer -c 0 sset Master 3+ unmute")),
+    Key([], "XF86AudioLowerVolume",
+        lazy.spawn("amixer -c 0 sset Master 2- unmute")
+    ),
 
-    Key([mod], "Left", lazy.layout.left(), desc="Move focus to left"),
+    Key([], "XF86AudioRaiseVolume", 
+        lazy.spawn("amixer -c 0 sset Master 2+ unmute")
+    ),
 
-    Key([mod], "Right", lazy.layout.right(), desc="Move focus to right"),
+    Key([mod], "Left", 
+        lazy.layout.left(), 
+        desc="Move focus to left"
+    ),
 
-    Key([mod], "Down", lazy.layout.down(), desc="Move focus down"),
+    Key([mod], "Right",
+        lazy.layout.right(), desc="Move focus to right"
+    ),
 
-    Key([mod], "Up", lazy.layout.up(), desc="Move focus up"),
+    Key([mod], "Down", 
+        lazy.layout.down(), desc="Move focus down"
+    ),
 
-    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    Key([mod], "Up", 
+        lazy.layout.up(), desc="Move focus up"
+    ),
+
+    Key([mod], "space",
+        lazy.layout.next(), desc="Move window focus to other window"
+    ),
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "Left", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([mod, "shift"], "Left", 
+        lazy.layout.shuffle_left(), desc="Move window to the left"
+    ),
 
-    Key([mod, "shift"], "Right", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([mod, "shift"], "Right", 
+        lazy.layout.shuffle_right(), desc="Move window to the right"
+    ),
 
-    Key([mod, "shift"], "Down", lazy.layout.shuffle_down(), desc="Move window down"),
+    Key([mod, "shift"], "Down", 
+        lazy.layout.shuffle_down(), desc="Move window down"
+    ),
 
-    Key([mod, "shift"], "Up", lazy.layout.shuffle_up(), desc="Move window up"),
+    Key([mod, "shift"], "Up", 
+        lazy.layout.shuffle_up(), desc="Move window up"
+    ),
 
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
     Key([mod, "control"], "Left",
-        lazy.layout.grow_left(), desc="Grow window to the left"),
+        lazy.layout.grow_left(), desc="Grow window to the left"
+    ),
+
     Key(
         [mod, "control"], "Right",
-        lazy.layout.grow_right(), desc="Grow window to the right"),
+        lazy.layout.grow_right(), desc="Grow window to the right"
+    ),
+
     Key(
         [mod, "control"],
-        "Down", lazy.layout.grow_down(), desc="Grow window down"),
+        "Down", lazy.layout.grow_down(), desc="Grow window down"
+    ),
+
     Key(
         [mod, "control"], "Up",
-        lazy.layout.grow_up(), desc="Grow window up"),
+        lazy.layout.grow_up(), desc="Grow window up"
+    ),
+
     Key(
         [mod], "n",
-        lazy.layout.normalize(), desc="Reset all window sizes"),
+        lazy.layout.normalize(), desc="Reset all window sizes"
+    ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
     # multiple stack panes
     Key(
         [mod, "shift"],"Return",
-        lazy.layout.toggle_split(),desc="Toggle between split and unsplit sides of stack",),
+        lazy.layout.toggle_split(),
+        desc="Toggle between split and unsplit sides of stack",
+    ),
+
     Key(
         [mod], "Return",
-        lazy.spawn("alacritty"), desc="Launch terminal"),
+        lazy.spawn("kitty"), desc="Launch terminal"
+    ),
+
     # Toggle between different layouts as defined below
     Key(
         [mod], "Tab",
-        lazy.next_layout(), desc="Toggle between layouts"),
+        lazy.next_layout(), desc="Toggle between layouts"
+    ),
+
     Key(
-        [mod],"w", lazy.window.kill(), desc="Kill focused window"),
+        [mod],"w", 
+        lazy.window.kill(), desc="Kill focused window"
+    ),
+
     Key(
         [mod],"f",
-        lazy.window.toggle_fullscreen(),desc="Toggle fullscreen",),
+        lazy.window.toggle_fullscreen(),desc="Toggle fullscreen",
+    ),
+
     Key(
         [mod], "t",
-        lazy.window.toggle_floating(), desc="Toggle floating"),
+        lazy.window.toggle_floating(), desc="Toggle floating"
+    ),
+
     Key(
         [mod, "control"], "r",
-        lazy.reload_config(), desc="Reload the config"),
+        lazy.reload_config(), desc="Reload the config"
+    ),
+
     Key(
         [mod, "control"], "q",
-        lazy.shutdown(), desc="Shutdown Qtile"),
+        lazy.shutdown(), desc="Shutdown Qtile"
+    ),
     Key(
         [mod], "r",
-        lazy.spawn("rofi -show drun"), desc="Spawn rofi app laucher"),
+        lazy.spawn("rofi -show drun"), desc="Spawn rofi app laucher"
+    ),
     Key(
         [mod], "b",
-        lazy.spawn("brave"), desc="spawn brave browser"),
+        lazy.spawn("flatpak run com.brave.Browser"), desc="spawn brave browser"
+    ),
 
 ]
 ###########################################
@@ -152,12 +262,13 @@ keys = [
 #groups = [Group(i) for i in "12345"]
 
 groups = [
-        Group("1",label= "-"),
-        Group("2",label= "="),
-        Group("3",label= "≡"),
-        Group("4",label= "△"),
-        Group("5",label= "□"),
-        ]
+    Group("1",label= "-"),
+    Group("2",label= "="),
+    Group("3",label= "≡"),
+    Group("4",label= "△"),
+    Group("5",label= "□"),
+    #Group("6",label= "⬠"),
+]
 
 for i in groups:
 
@@ -175,13 +286,13 @@ for i in groups:
                 [mod, "shift"],
                 i.name,
                 lazy.window.togroup(i.name, switch_group=True),
-               desc="Switch to & move focused window to group ".format(i.name),
-           ),
+                desc="Switch to & move focused window to group ".format(i.name),
+            ),
             # Or, use below if you prefer not to switch to that group.
             # # mod1 + shift + letter of group = move focused window to group
             # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
             #     desc="move focused window to group {}".format(i.name)),
-            ]
+        ]
     )
 ###################################################
 #      __                                __       #
@@ -200,23 +311,23 @@ layouts = [
      #layout.MonadWide(),
      #layout.RatioTile(),
      #layout.Tile(),
-     #layout.TreeTab(border_width=3, margin= 6, border_focus="ffffff", border_normal="ffff44", active_bg="99ccff", active_fg="000000",sections=[""]),
+     #layout.TreeTab(border_width=3, margin= 6, border_focus="ffffff", border_normal="ffff44", active_bg="99ccff", active_fg="ffffff",sections=[""]),
      #layout.VerticalTile(),
      #layout.Zoomy( margin=9,border_focus="cce6ff",border_normal="0059b3",border_on_single=True,border_width= 5),
-     layout.Columns(
-         margin=9,
-         border_focus="cce6ff",
-         border_normal="0059b3",
+    layout.Columns(
+         margin=7,
+         border_focus=Color7,
+         border_normal=Color1,
          border_on_single=True,
-         border_width= 5
-         ),
-     layout.Max(
-         margin=9,
-         border_focus="cce6ff",
-         border_normal="ffff44",
-         border_width=5
-         ),
-    # layout.Floating( border_focus="#ffffff", border_normal="#0059b3",border_width=5),
+         border_width= 2
+    ),
+    layout.Max(
+         margin=7,
+         border_focus=Color7,
+         border_normal= Color1 ,
+         border_width=2
+    ),
+    # layout.Floating( border_focus="#ffffff", border_normal= Color1 ,border_width=5),
 
 ]
 #########################################
@@ -232,9 +343,11 @@ layouts = [
 #########################################
 widget_defaults = dict(
     font="Source Code Pro",
-    fontsize=15,
+    fontsize=14,
     padding=3,
 )
+
+# i am not really using that , but it give me space instead of spacers 
 extension_defaults = widget_defaults.copy()
 powerlineA = {
     "decorations": [
@@ -249,12 +362,41 @@ powerlineB = {
 roundshape = {
     "decorations": [
         RectDecoration(colour="#800000",
-                       radius=10,
-                       filled=True,
-                       padding_y=1,
-                       group=True)
+            radius=7,
+            filled=True,
+            padding_y=2,
+            group=True
+        )
     ],
     "padding": 10,
+}
+circle = {
+    "decorations": [
+        RectDecoration(colour=Color1,
+            radius=9,
+            filled=True,
+            extrawidth=0,
+            group=True
+        )
+    ]
+}
+circle1 = {
+    "decorations": [
+        RectDecoration(colour=Color1,
+            radius=9,
+            filled=True,
+            extrawidth=0,
+            group=True
+        ),
+        RectDecoration(colour="#800000",
+            radius=7,
+            filled=True,
+            padding_y=2,
+            group=False
+        )
+
+
+    ]
 }
 ##################################################
 #         _____                                  #
@@ -263,170 +405,254 @@ roundshape = {
 #       ___/ // /__ / /   /  __//  __// / / /    #
 #      /____/ \___//_/    \___/ \___//_/ /_/     #
 ##################################################
+
+#dont play wiht sapcers !
+
 screens = [
     Screen(
-        wallpaper=".config/qtile/wallpaper.jpg",
+        wallpaper="",#.config/qtile/wallpaper7.jpg",
         wallpaper_mode="fill",
-        top=bar.Bar(
+        top=bar.Bar
+        (
             [
                 #widget.CurrentLayout(),
                 widget.Spacer(
                     width=7,
-                    length=7,
-                    background="0080ff",
-                    ),
-
- 
-                              
-                widget.Image(
-                    filename=".config/qtile/logo.png",
-                    scale=True,
-                    margin_x=-3,
-                    background="0080ff",
-                    ),
+                    length=0,
+                    background="0000007f",
+                ),
+                  
+                #widget.Image(
+                #   filename=".config/qtile/logo.png",
+                #  scale=True,
+                # margin_x=-3,
+                #background="0080ff",
+                #),
                 
                 widget.Clock(
-                        format=" %I:%M%p ", 
-                        background="0080ff", 
-                        foreground="#000000",
-                        spacing="2"
-                        ),
-
-
-               widget.Spacer(
+                    format=" %I:%M %p ", 
+                    background="0000007f", 
+                    foreground="#ffffff",#Color7
+                    spacing="2",
+                    **circle
+                ),
+                
+                  
+                   
+                   
+                widget.Spacer(
                     width=7,
                     length=7,
-                    background="0080ff",
-                    **powerlineA,
-                    ),
- 
-
+                    background="0000007f",
+                ),
+                  
+                   
+                widget.Spacer(length=7,**circle,background="0000007f"),
                 widget.GroupBox(
                     fontsize=21,
-                    active="000000",
-                    background="0073e6",
-                    highlight_method="line",
-                    highlight_color=["0080ff","0059b3"],
-                    this_current_screen_border="004080",
-                    margin_x=-1,
-                    **powerlineA,
-                    ),
+                    active="ffffff",
+                    background="0000007f",
+                    highlight_method="block",
+                    inactive = Color8, 
+                    block_highlight_text_color=Color0,
+                    #highlight=Color4,
+                    #highlight_color=[Color1,Color5],
+                    this_current_screen_border=Color7,
+                    padding_y=-3,
+                    padding_x=4,
+                    rounded = True,
+                    margin_x=3,
+                    **circle,
+                ),
+                     
+                widget.Spacer(length=7,**circle,background="0000007f"),
 
 
                 widget.WindowName(
-                    background="00000000",
+                    padding=10,
+                    background="0000007f",
                     **powerlineB,
                     empty_group_string="What a great wallpaper...",
-                    ),
+                ),
+                                   
+                widget.Spacer(length=5,**circle,background="0000007f"),
+                widget.TextBox(
+                    fontsize=14,
+                    text=" ",
+                    foreground="ffffff",
+                    background="0000007f",
+                    mouse_callbacks=Btop,
+                    **circle
+                ),
                 
-
-            
                 widget.Memory(
-                    background="#0062b3",
-                    foreground="#000000",
-                    format="RAM:{MemPercent}%",
-                    #**powerlineB
-                    ),
-
+                    mouse_callbacks=Btop,
+                    background="0000007f",
+                    foreground="#ffffff",
+                    format=":{MemPercent}% ",
+                    **circle
+                ),
+                widget.TextBox(
+                    mouse_callbacks=Btop,
+                    fontsize=19,
+                    text=" 󰍛",
+                    foreground="ffffff",
+                    background="0000007f",
+                    **circle
+                ),
                 widget.CPU(
-                    background="0062b3",
-                    foreground="000000",
-                    format= "| CPU:{load_percent}%",
-                    **powerlineB
-                    ),
-
-                 widget.UPowerWidget(
-                    background = "#0070cc",
-                    border_colour = "#000000",
+                    mouse_callbacks=Btop,
+                    background="0000007f",
+                    foreground="#ffffff",
+                    format= ":{load_percent}% ",
+                    update_interval=1,
+                    **circle
+                ),
+               
+                widget.ThermalSensor(
+                    mouse_callbacks=Btop,
+                    background="0000007f",
+                    foreground="ffffff",
+                    format=" 󰔏 {temp:.1f}{unit} ",
+                    tag_sensor="Core 0",
+                    update_interval=1,
+                    threshold=80,
+                    foreground_alert="800000",
+                    **circle,
+                ),
+                
+                widget.Spacer(length=7,background="0000007f"),
+                widget.Spacer(length=15,**circle,background="0000007f"),
+                widget.UPowerWidget(
+                    background = "0000007f",
+                    border_colour = "#ffffff",
                     border_critical_colour = "#cc0000",
-                    border_charge_colour = "#000000",
+                    border_charge_colour = "#ffffff",
                     fill_low = "#ff6600",
                     fill_charge = "#00cc66",
                     fill_critical = "#cc0000",
                     fill_normal = "#3d3d29",
                     percentage_low = 0.4,
                     percentage_critical = 0.2,
-                    foreground="#000000",
+                    foreground="#ffffff",
                     text_charging="({percentage:.0f}%)",
                     text_discharging="{percentage:.0f}%",
                     text_displaytime=3666,
                     battery_height=13,
                     battery_width=27,
-                    **powerlineB,
-                    ),
+                    spacing=6,
+                    **circle,
+                ),
 
-                 widget.WiFiIcon(
-                    **powerlineB,
-                    background="#0070cc",
-                    active_colour="#1e1e1e",
-                    foreground="#000000",
-                    
-                    ),
+               
+                widget.Spacer(length=5,**circle,background="0000007f"),
+                widget.WiFiIcon(
+                    background="0000007f",
+                    active_colour="#E1E1E1",
+                    foreground="#ffffff",
+                    padding_x=7,
+                    padding_y=3,
+                    **circle
+                ),
+                widget.KeyboardLayout(
+                    configured_keyboards=['us','ara'],
+                    background="0000007f",
+                    foreground="ffffff",
+                    padding=7,
+                    **circle
+                ),
 
                 
+                #widget.Spacer(length=6,background="0000007f"),
+                widget.PulseVolume(
+                    **circle,
+                    padding=7,
+                    unmute_format=' {volume}%',
+                    background="0000007f",
+                    emoji=False,
+                    volume_app='amixer',
+                     
+                ),             
+                widget.Backlight(
+                    fontsize=15,
+                    backlight_name="intel_backlight",
+                    **circle,
+                    format='󰃠 {percent:2.0%}',
+                    padding=5,
+                    update_interval=0.1,
+                ),
+
+                widget.Spacer(length=7,**circle),
                 widget.CheckUpdates(
                     distro="Arch_checkupdates",
                     no_update_string="No updates",
-                    background="#0073e6", 
-                    foreground="000000",
-                    colour_have_updates="000000",
-                    colour_no_updates="000000",
+                    background="0000007f", 
+                    foreground="ffffff",
+                    colour_have_updates="ffffff",
+                    colour_no_updates="ffffff",
                     display_format="Updates:{updates}",
-                    **powerlineB,
-                    ),
+                    mouse_callbacks={"Button1":lazy.spawn("kitty ./.config/qtile/update.sh")},
+                    **circle,
+                ),
 
+                widget.Spacer(length=7,**circle,background="0000007f"),
 
-                 widget.OpenWeather(
+                widget.Spacer(length=7,background="0000007f"),
+                
+                #widget.Spacer(length=5,background="0000007f",**circle),
+                widget.OpenWeather(
                     app_key = "4cf3731a25d1d1f4e4a00207afd451a2",
                     cityid = "250441",
-                    format = '{main_temp}° {icon}',
+                    format = "{main_temp}°{icon}",
                     metric = True,
-                    
-                    background = "#0080ff",
-                    foreground = "#000000",
-                     
-                        ),
+                    padding=5,
+                    fontsize = 14,
+                    background = "0000007f",
+                    foreground = "#ffffff",
+                    **circle
+                ),
 
                 widget.Clock(
-                        format=" %d/%m ", 
-                        background="0080ff", 
-                        foreground="#000000",
-                        spacing="2"
-                        ),
+                    format=" %d/%m ", 
+                    background="0000007f", 
+                    foreground="#ffffff",
+                    spacing="2",
+                    **circle
+                ),
+
 
                 widget.QuickExit(
-                        countdown_format="[ {}  ]",
-                        default_text="LOGOUT",
-                        background="0080ff",
-                        padding_x="3",
-                        **roundshape
-                        ),
-                 widget.Spacer(
-                    width=7,
-                    length=5,
-                    background="0080ff",
-                    ),
+                    countdown_format="[ {}  ]",
+                    default_text="LOGOUT",
+                    background="0000007f",
+                    padding_x=3,
+                    **circle1
+                ),
 
+                widget.Spacer(length=4,**circle,background="0000007f"),
+
+                
 
             ],
 
-            24,
-      #this ^^ is the bar hight 
-             border_width=[3, 0, 0, 0],#Draw top and bottom borders
-              border_color=["0080ff",
-                            "0060cc",
-                            "00000000", 
-                            "0060cc"
-                            ],
-
+            23,
+        #this ^^ is the bar hight 
+            border_width=[0, 0,0,0],#Draw top and bottom borders
+            border_color=[
+                "0000007f",
+                "0060cc",
+                "0000007f", 
+                "0060cc"
+            ],
+            margin = [7,10,0,10],
               # Borders are magenta (UP,SIDE,DOWN,SIDE)
-                opacity=1,
-                background="ffffff00",
-              ),
+            opacity=1,
+            background="0000007f",
+        ),
         # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
         # By default we handle these events delayed to already improve performance, however your system might still be struggling
         # This variable is set to None (no cap) by default, but you can set it to 60 to indicate that you limit it to 60 events per second
-         x11_drag_polling_rate = 60,
+         #x11_drag_polling_rate = 400,
     ),
 ]
 ####################################################
@@ -458,11 +684,11 @@ bring_front_click = False
 floats_kept_above = True
 cursor_warp = False
 floating_layout = layout.Floating(
-        margin=9,
-        border_focus="cce6ff",
-        border_normal="0059b3",
-        border_on_single=True,
-        border_width= 5,
+        margin=7,
+         border_focus="cce6ff",
+         border_normal=Color1,
+         border_on_single=True,
+         border_width= 2,
 
 
 
