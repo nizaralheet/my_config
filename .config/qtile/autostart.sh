@@ -1,2 +1,4 @@
 #!/bin/sh
-sleep & picom & xrandr --output Virtual1 --mode 1920x1080 & wal -i .config/qtile/wallpaper.jpg
+#!/bin/sh
+sleep & dunst &
+picom --blur-method dual_kawase --blur-strength 5 --vsync --crop-shadow-to-monitor --animations & wal -R 
