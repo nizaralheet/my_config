@@ -1,14 +1,12 @@
-
-
-@theme "/themes/glue_pro_blue.rasi"
-
 configuration {
-drun-display-format: "{icon} {name}";
-show-icons:true ;
-font : "SourceCodeVF Regular 14" ;
-modes : "drun";
+  timeout {
+      action: "kb-cancel";
+      delay:  0;
+  }
+  filebrowser {
+      directories-first: true;
+      sorting-method:    "name";
+  }
 }
-
-
-
+@theme "/home/nizar/.config/rofi/themes/dynamic-theme.rasi"
 
