@@ -21,9 +21,3 @@
 - Qtile extras
 <h3>they are all available on Arch abd pip libraries</h3>
 
-# Screenshots
-![image1](https://raw.githubusercontent.com/nizaralheet/my_config/main/screenshot/q1.png)
-
-![image2](https://raw.githubusercontent.com/nizaralheet/my_config/main/screenshot/q2.png)
- 
-![image3](https://raw.githubusercontent.com/nizaralheet/my_config/main/screenshot/q3.png)
