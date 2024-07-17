@@ -22,7 +22,6 @@ import json
 import qtile_extras.hook
 from libqtile import bar, layout, qtile, hook
 from qtile_extras import widget
-from qtile_extras.widget.decorations import PowerLineDecoration
 #from qtile_extras.popup.toolkit import PopupRelativeLayout, PopupSlider, PopupText, PopupWidget
 from qtile_extras.widget.decorations import RectDecoration
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
@@ -75,7 +74,7 @@ def battery_critical(battery_name):
 
 @hook.subscribe.startup
 def run_every_startup():
-    send_notification("qtile", "Startup : Done !!")
+    send_notification("Qtile", "config realoading is done.")
 
 @qtile_extras.hook.subscribe.up_power_connected
 def plugged_in():
@@ -108,18 +107,23 @@ home= os.path.expanduser("~")
 #          |___/                               |___/     #
 ##########################################################
 keys = [
-    Key([mod], "Shift_R",  
+    # that is for my clipboard add yours  
+    Key([mod],"v",
+        lazy.spawn("copyq show"),
+    ),
+    # this to change the keyboardlayout if you are multi laguage you could change the lang at keyboardlayout widget
+    Key([alt], "Shift_L",  
         lazy.widget["keyboardlayout"].next_keyboard()
     ),
+
+    # here is the brightness control
     Key([], "XF86MonBrightnessUp", 
         lazy.spawn("brightnessctl set +5%"),
     ),
-
-
     Key([], "XF86MonBrightnessDown", 
         lazy.spawn("brightnessctl set 5%-"),
     ),
-
+    # audion control
     Key([], "XF86AudioMute",
         lazy.spawn("amixer -q set Master toggle")
         ),
@@ -131,7 +135,7 @@ keys = [
     Key([], "XF86AudioRaiseVolume", 
         lazy.spawn("amixer -c 0 sset Master 2+ unmute")
     ),
-
+    # for moving and changing window focus i use arrows if you are comfortable wiht hjkl you could edit it
     Key([mod], "Left", 
         lazy.layout.left(), 
         desc="Move focus to left"
@@ -245,6 +249,7 @@ keys = [
         [mod], "r",
         lazy.spawn("rofi -show drun"), desc="Spawn rofi app laucher"
     ),
+    # edit and add the browser you use
     Key(
         [mod], "b",
         lazy.spawn("flatpak run com.brave.Browser"), desc="spawn brave browser"
@@ -327,6 +332,12 @@ layouts = [
          border_normal= Color1 ,
          border_width=2
     ),
+    layout.Spiral(margin=7,
+         border_focus=Color7,
+         border_normal=Color1,
+         border_on_single=True,
+         border_width= 2
+    )
     # layout.Floating( border_focus="#ffffff", border_normal= Color1 ,border_width=5),
 
 ]
@@ -347,29 +358,9 @@ widget_defaults = dict(
     padding=3,
 )
 
-# i am not really using that , but it give me space instead of spacers 
+ 
 extension_defaults = widget_defaults.copy()
-powerlineA = {
-    "decorations": [
-        PowerLineDecoration(path="forward_slash")
-    ]
-}
-powerlineB = {
-    "decorations": [
-        PowerLineDecoration(path="back_slash")
-    ]
-}
-roundshape = {
-    "decorations": [
-        RectDecoration(colour="#800000",
-            radius=7,
-            filled=True,
-            padding_y=2,
-            group=True
-        )
-    ],
-    "padding": 10,
-}
+
 circle = {
     "decorations": [
         RectDecoration(colour=Color1,
@@ -389,7 +380,7 @@ circle1 = {
             group=True
         ),
         RectDecoration(colour="#800000",
-            radius=7,
+            radius=8,
             filled=True,
             padding_y=2,
             group=False
@@ -406,7 +397,7 @@ circle1 = {
 #      /____/ \___//_/    \___/ \___//_/ /_/     #
 ##################################################
 
-#dont play wiht sapcers !
+
 
 screens = [
     Screen(
@@ -415,19 +406,14 @@ screens = [
         top=bar.Bar
         (
             [
-                #widget.CurrentLayout(),
+                
                 widget.Spacer(
                     width=7,
                     length=0,
                     background="0000007f",
                 ),
                   
-                #widget.Image(
-                #   filename=".config/qtile/logo.png",
-                #  scale=True,
-                # margin_x=-3,
-                #background="0080ff",
-                #),
+                
                 
                 widget.Clock(
                     format=" %I:%M %p ", 
@@ -448,6 +434,10 @@ screens = [
                   
                    
                 widget.Spacer(length=7,**circle,background="0000007f"),
+                widget.CurrentLayoutIcon(
+                    **circle,
+                    scale=0.8,
+                ),
                 widget.GroupBox(
                     fontsize=21,
                     active="ffffff",
@@ -460,7 +450,7 @@ screens = [
                     this_current_screen_border=Color7,
                     padding_y=-3,
                     padding_x=4,
-                    rounded = True,
+                    #rounded = True,
                     margin_x=3,
                     **circle,
                 ),
@@ -471,10 +461,11 @@ screens = [
                 widget.WindowName(
                     padding=10,
                     background="0000007f",
-                    **powerlineB,
                     empty_group_string="What a great wallpaper...",
                 ),
-                                   
+                
+
+
                 widget.Spacer(length=5,**circle,background="0000007f"),
                 widget.TextBox(
                     fontsize=14,
@@ -528,10 +519,10 @@ screens = [
                     border_colour = "#ffffff",
                     border_critical_colour = "#cc0000",
                     border_charge_colour = "#ffffff",
-                    fill_low = "#ff6600",
+                    fill_low = "#ffff00",
                     fill_charge = "#00cc66",
                     fill_critical = "#cc0000",
-                    fill_normal = "#3d3d29",
+                    fill_normal = "#ffffff",
                     percentage_low = 0.4,
                     percentage_critical = 0.2,
                     foreground="#ffffff",
@@ -554,6 +545,7 @@ screens = [
                     padding_y=3,
                     **circle
                 ),
+                #here you could add your language
                 widget.KeyboardLayout(
                     configured_keyboards=['us','ara'],
                     background="0000007f",
@@ -572,7 +564,8 @@ screens = [
                     emoji=False,
                     volume_app='amixer',
                      
-                ),             
+                ),
+                #maybe this wouldnot work , check qtile docs and your backlight_name
                 widget.Backlight(
                     fontsize=15,
                     backlight_name="intel_backlight",
@@ -602,7 +595,7 @@ screens = [
                 #widget.Spacer(length=5,background="0000007f",**circle),
                 widget.OpenWeather(
                     app_key = "4cf3731a25d1d1f4e4a00207afd451a2",
-                    cityid = "250441",
+                    cityid = "2643743",#serch your city here https://openweathermap.org/find and you gonna find the id at the link like this for london https://openweathermap.org/city/2643743
                     format = "{main_temp}°{icon}",
                     metric = True,
                     padding=5,
