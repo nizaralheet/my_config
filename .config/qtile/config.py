@@ -547,7 +547,7 @@ screens = [
                 ),
                 #here you could add your language
                 widget.KeyboardLayout(
-                    configured_keyboards=['us','ara'],
+                    configured_keyboards=['us'],
                     background="0000007f",
                     foreground="ffffff",
                     padding=7,
