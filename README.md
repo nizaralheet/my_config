@@ -4,7 +4,11 @@
 - all config files that i have customized for every thing im my system are here
 - make sure to make the autostart.sh excutable by running this command ```chmod +x .config/qtile/autostart.sh```
 - you could disable the blur or the animaton from picom config if you feel your machine is slow , it is disabled by default
-- to make dunst sync with pywal you have to make a link like this ```ln -s .cache/wal/dunstrc .config/dunst/dunstrc``` so any change in pywal or wpgtk changes dunst theme
+- to make dunst sync with pywal you have to make a link like this 🔻 so any change in pywal or wpgtk changes dunst theme
+```
+ln -s .cache/wal/dunstrc .config/dunst/dunstrc
+```
+ 
 ## Dependencies 
 -Run this command on arch to install the Dependencies 
 ```
