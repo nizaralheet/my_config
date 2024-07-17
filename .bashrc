@@ -16,7 +16,7 @@ function pywal() {
   killall dunst ; 
   wal -i "wallpapers/wallpaper$1.jpg" &&
   qtile cmd-obj -o cmd -f reload_config &&
-  wpg -s ~/wallpapers/wallpaper$1.jpg ; dunst & 
+  wpg -s ~/wallpapers/wallpaper$1.jpg ; dunst & # you could add" pywalfox update " if use firefox
 
 }
 
