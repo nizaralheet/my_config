@@ -18,7 +18,7 @@ yay -S --needed gdk-pixbuf2  glibc  libnotify  librsvg  pango  python python-cai
 - I use this [fdev31 picom](https://github.com/fdev31/picom) fork , but you can you use any like FT-laps fork.
 - For text editor I use [lunarvim](https://github.com/LunarVim/LunarVim) .
 - For the gtk theme and icons i use flatcolor theme and flattrcolor icons they are in  [wpgtk-templates](https://github.com/deviantfero/wpgtk-templates) and i use [tela-cirle](https://github.com/vinceliuice/Tela-circle-icon-theme) for rofi 
-- For themeing [chromium based browsers](https://github.com/dylanaraps/pywal) and [firefox](https://github.com/Frewacom/pywalfox/) install the extension for every one of them
+- For themeing [chromium based browsers](https://github.com/metafates/ChromiumPywal) and [firefox](https://github.com/Frewacom/pywalfox/) install the extension for every one of them
 - the font : ```ttf-sourcecodepro-nerd``` 
 
 
