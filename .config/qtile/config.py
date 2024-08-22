@@ -16,22 +16,22 @@
 #/___//_/ /_/ /_// .___/ \____//_/    \__//____/  #
 #               /_/                               #
 ###################################################
-import os 
+import os
+#import copy
 import subprocess
 import json
 import qtile_extras.hook
-from libqtile import bar, layout, qtile, hook
-from qtile_extras import widget
-#from qtile_extras.popup.toolkit import PopupRelativeLayout, PopupSlider, PopupText, PopupWidget
+from libqtile import bar, qtile, extension ,hook
+from qtile_extras import widget ,layout 
+from qtile_extras.widget import decorations
 from qtile_extras.widget.decorations import RectDecoration
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import send_notification
-#from libqtile.widget import backlight
+from qtile_extras.popup.toolkit import PopupRelativeLayout, PopupSlider, PopupText, PopupImage ,PopupWidget ,PopupAbsoluteLayout
+from functions import keylay ,show_power_menu , qtile_menu
+#from qtile_extras.widget import decorations
 
-
-
-# here is the colors that we gonna use from pywal
 
 colors = os.path.expanduser('~/.cache/wal/colors.json')
 colordict = json.load(open(colors))
@@ -54,48 +54,59 @@ Color15=(colordict['colors']['color15'])
 
 Btop=({"Button1":lazy.spawn("kitty -e btop")})
 
-# this hooks need to work on
 
+mod = "mod4"
+alt = "mod1"
+terminal = "kitty"
+home= os.path.expanduser("~")
 
+##############################
+# _                 _        #
+#| |__   ___   ___ | | _____ #
+#| '_ \ / _ \ / _ \| |/ / __|#
+#| | | | (_) | (_) |   <\__ \#
+#|_| |_|\___/ \___/|_|\_\___/#
+##############################p
+# this hook is wierd af
 
 #@qtile_extras.hook.subscribe.up_battery_full
 # def battery_full(battery_name):
 #    send_notification("Power HQ",  "Battery is fully charged.")
 
 
-
 @qtile_extras.hook.subscribe.up_battery_low
-def battery_low(battery_name):
+def battery_low():
     send_notification("Power HQ", "Battery is running low.")
 
 @qtile_extras.hook.subscribe.up_battery_critical
-def battery_critical(battery_name):
-    send_notification(battery_name, "Battery is critically low. Plug in power cable.")
+def battery_critical():
+    send_notification("Power HQ","Battery is critically low. Plug in power cable.")
 
-@hook.subscribe.startup
+@hook.subscribe.startup_complete
 def run_every_startup():
     send_notification("Qtile", "config realoading is done.")
 
 @qtile_extras.hook.subscribe.up_power_connected
 def plugged_in():
     send_notification("Power HQ","The power have been pluged in , Charging Up")
-    #qtile.spawn("ffplay power_on.wav")
-
+    qtile.spawn("ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/power-plug.oga")
 @qtile_extras.hook.subscribe.up_power_disconnected
 def unplugged():
     send_notification("Power HQ", "The power cable is disconnected , Discharging")
-    qtile.spawn("ffplay power_off.wav")
+    qtile.spawn("ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/power-unplug.oga")
 
 
 @hook.subscribe.startup_once
 def autostart():
     home = os.path.expanduser("/home/nizar/.config/qtile/autostart.sh")
     subprocess.Popen([home])
+    send_notification("Welcome","What are you gonna do today?")
+    lazy.spawn("sleep 2 ; ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/desktop-login.oga")
+@hook.subscribe.resume
+def wakeup():
+    send_notification("Welcome Back !","The system successfully awaken form sleep")
 
-mod = "mod4"
-alt = "mod1"
-terminal = "kitty"
-home= os.path.expanduser("~")
+
 ##########################################################
 # _  __            ____  _           _ _                 #
 #| |/ /           |  _ \(_)         | (_)                #
@@ -107,37 +118,52 @@ home= os.path.expanduser("~")
 #          |___/                               |___/     #
 ##########################################################
 keys = [
-    # that is for my clipboard add yours  
-    Key([mod],"v",
-        lazy.spawn("copyq show"),
+   # i have the keys binded to the keycode so isntall xorg-xev to see all keys , thats becasuse i use more than one keyboard layout
+    Key([mod],26,
+        lazy.spawn("nemo"),desc="mod+e open nemo"
+    ),
+    Key([alt],"Tab",lazy.run_extension(
+        extension.WindowList(dmenu_command="rofi -show window")),desc="alt+tab opens rofi window"
+    ),
+    Key([mod],59,
+         lazy.spawn("rofi -show emoji -modi emoji"),desc="mod+comma opens rofi emojis"
+    ),
+    # that is for my clipboard add yours
+    Key([mod],55,
+        lazy.spawn("copyq show"),desc="mod+v shows copyq clipboard"
     ),
     # this to change the keyboardlayout if you are multi laguage you could change the lang at keyboardlayout widget
-    Key([alt], "Shift_L",  
-        lazy.widget["keyboardlayout"].next_keyboard()
+    Key([alt], "Shift_L",
+        lazy.widget["keyboardlayout"].next_keyboard(),
+        lazy.function(keylay),desc="this is the function that make the languag layout pop up"
     ),
 
     # here is the brightness control
-    Key([], "XF86MonBrightnessUp", 
-        lazy.spawn("brightnessctl set +5%"),
+    Key([], "XF86MonBrightnessUp",
+        lazy.spawn("brightnessctl set +5%"),desc="raise the brighteness level"
+
     ),
-    Key([], "XF86MonBrightnessDown", 
-        lazy.spawn("brightnessctl set 5%-"),
+    Key([], "XF86MonBrightnessDown",
+        lazy.spawn("brightnessctl set 5%-"),desc="lower the brighteness level"
     ),
     # audion control
     Key([], "XF86AudioMute",
-        lazy.spawn("amixer -q set Master toggle")
-        ),
+        lazy.spawn("pamixer -t"),desc="mute the volume"
+
+    ),
 
     Key([], "XF86AudioLowerVolume",
-        lazy.spawn("amixer -c 0 sset Master 2- unmute")
+        lazy.spawn("pamixer -d 5"),
+        lazy.spawn(" ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/audio-volume-change.oga"),desc="lower the volume"
     ),
 
-    Key([], "XF86AudioRaiseVolume", 
-        lazy.spawn("amixer -c 0 sset Master 2+ unmute")
+    Key([], "XF86AudioRaiseVolume",
+        lazy.spawn("pamixer -i 5"),
+        lazy.spawn(" ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/audio-volume-change.oga"),desc="raising the volume"
     ),
     # for moving and changing window focus i use arrows if you are comfortable wiht hjkl you could edit it
-    Key([mod], "Left", 
-        lazy.layout.left(), 
+    Key([mod], "Left",
+        lazy.layout.left(),
         desc="Move focus to left"
     ),
 
@@ -145,11 +171,11 @@ keys = [
         lazy.layout.right(), desc="Move focus to right"
     ),
 
-    Key([mod], "Down", 
+    Key([mod], "Down",
         lazy.layout.down(), desc="Move focus down"
     ),
 
-    Key([mod], "Up", 
+    Key([mod], "Up",
         lazy.layout.up(), desc="Move focus up"
     ),
 
@@ -159,19 +185,19 @@ keys = [
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "Left", 
+    Key([mod, "shift"], "Left",
         lazy.layout.shuffle_left(), desc="Move window to the left"
     ),
 
-    Key([mod, "shift"], "Right", 
+    Key([mod, "shift"], "Right",
         lazy.layout.shuffle_right(), desc="Move window to the right"
     ),
 
-    Key([mod, "shift"], "Down", 
+    Key([mod, "shift"], "Down",
         lazy.layout.shuffle_down(), desc="Move window down"
     ),
 
-    Key([mod, "shift"], "Up", 
+    Key([mod, "shift"], "Up",
         lazy.layout.shuffle_up(), desc="Move window up"
     ),
 
@@ -197,8 +223,8 @@ keys = [
     ),
 
     Key(
-        [mod], "n",
-        lazy.layout.normalize(), desc="Reset all window sizes"
+        [mod], 57,
+        lazy.layout.normalize(), desc="mod + n Reset all window sizes"
     ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
@@ -222,37 +248,37 @@ keys = [
     ),
 
     Key(
-        [mod],"w", 
-        lazy.window.kill(), desc="Kill focused window"
+        [mod],25,
+        lazy.window.kill(), desc="mod+w Kill focused window"
     ),
 
     Key(
-        [mod],"f",
-        lazy.window.toggle_fullscreen(),desc="Toggle fullscreen",
+        [mod],41,
+        lazy.window.toggle_fullscreen(),desc="mod+f Toggle fullscreen",
     ),
 
     Key(
-        [mod], "t",
-        lazy.window.toggle_floating(), desc="Toggle floating"
+        [mod], 28,
+        lazy.window.toggle_floating(), desc="mod +t Toggle floating"
     ),
 
     Key(
-        [mod, "control"], "r",
-        lazy.reload_config(), desc="Reload the config"
+        [mod, "control"], 27,
+        lazy.reload_config(), desc="mod +ctrl + r Reload the config"
     ),
 
     Key(
-        [mod, "control"], "q",
-        lazy.shutdown(), desc="Shutdown Qtile"
+        [mod, "control"], 24,
+        lazy.shutdown(), desc="mod + ctrl +q Shutdown Qtile"
     ),
     Key(
-        [mod], "r",
-        lazy.spawn("rofi -show drun"), desc="Spawn rofi app laucher"
+        [mod], 27,
+        lazy.spawn("rofi -show drun"), desc="mod +r Spawn rofi app laucher"
     ),
     # edit and add the browser you use
     Key(
-        [mod], "b",
-        lazy.spawn("flatpak run com.brave.Browser"), desc="spawn brave browser"
+        [mod], 56,
+        lazy.spawn("firefox"), desc="mod +b spawn brave browser"
     ),
 
 ]
@@ -291,7 +317,7 @@ for i in groups:
                 [mod, "shift"],
                 i.name,
                 lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group ".format(i.name),
+                desc="Switch to & move focused window to group ",
             ),
             # Or, use below if you prefer not to switch to that group.
             # # mod1 + shift + letter of group = move focused window to group
@@ -312,7 +338,6 @@ layouts = [
      #layout.Stack(num_stacks=2),
      #layout.Bsp(),
      #layout.Matrix(),
-     #layout.MonadTall(margin=9, border_focus="cce6ff", border_normal="0059b3", border_on_single=True,border_width= 5),
      #layout.MonadWide(),
      #layout.RatioTile(),
      #layout.Tile(),
@@ -326,6 +351,14 @@ layouts = [
          border_on_single=True,
          border_width= 2
     ),
+    layout.MonadTall(
+         margin=7,
+         border_focus=Color7,
+         border_normal=Color1,
+         border_on_single=True,
+         border_width= 2
+    ),
+
     layout.Max(
          margin=7,
          border_focus=Color7,
@@ -337,7 +370,7 @@ layouts = [
          border_normal=Color1,
          border_on_single=True,
          border_width= 2
-    )
+    ),
     # layout.Floating( border_focus="#ffffff", border_normal= Color1 ,border_width=5),
 
 ]
@@ -353,8 +386,9 @@ layouts = [
 # \__,_|\___|_|  \__,_|\__,_|_|\__|___/ #
 #########################################
 widget_defaults = dict(
-    font="Source Code Pro",
-    fontsize=14,
+    font="Iosevka NF SemiBold",
+    foreground="#fff",
+    fontsize=15,
     padding=3,
 )
 
@@ -364,7 +398,7 @@ extension_defaults = widget_defaults.copy()
 circle = {
     "decorations": [
         RectDecoration(colour=Color1,
-            radius=9,
+            radius=10,#[0,11,0,11],
             filled=True,
             extrawidth=0,
             group=True
@@ -374,7 +408,7 @@ circle = {
 circle1 = {
     "decorations": [
         RectDecoration(colour=Color1,
-            radius=9,
+            radius=10,#[0,11,0,11],
             filled=True,
             extrawidth=0,
             group=True
@@ -382,13 +416,69 @@ circle1 = {
         RectDecoration(colour="#800000",
             radius=8,
             filled=True,
-            padding_y=2,
+            padding_y=3,
             group=False
         )
 
 
     ]
 }
+circle2={
+    "decorations":[
+            RectDecoration(colour=Color1,
+                radius=10,#[0,11,0,11],
+                filled=True,
+                extrawidth=0,
+                group=True
+            ),
+            RectDecoration(colour=Color7,
+                radius=8,#[0,11,0,11],
+                filled=True,
+                padding_y=3,
+                extrawidth=0,
+                group=False,
+            ),
+        ]
+    }
+
+VOLUME_POPUP = PopupRelativeLayout(
+
+    width=200,
+    height=50,
+    background=Color1,
+    border=Color7,
+    border_width=2,
+    controls=[
+        PopupText(
+            text="Volume:",
+            name="text",
+            font="SourceCodePro",
+            pos_x=0.1,
+            pos_y=0,
+            height=0.4,
+            width=0.8,
+            v_align="middle",
+            h_align="center",
+        ),
+        PopupSlider(
+            name="volume",
+            pos_x=0.1,
+            pos_y=0.3,
+            width=0.8,
+            height=0.5,
+            colour_below=Color7,
+            bar_border_colour=Color7,
+            bar_border_size=2,
+            bar_border_margin=-2,
+            bar_size=7,
+            marker_size=0,
+            end_margin=0,
+        ),
+    ],
+)
+
+
+
 ##################################################
 #         _____                                  #
 #        / ___/ _____ _____ ___   ___   ____     #
@@ -406,116 +496,247 @@ screens = [
         top=bar.Bar
         (
             [
-                
+                widget.PulseVolumeExtra(step=5,mode="popup",popup_layout=VOLUME_POPUP,limit_max_volume=True,),
+
                 widget.Spacer(
-                    width=7,
+                    width=10,
                     length=0,
-                    background="0000007f",
-                ),
-                  
-                
-                
-                widget.Clock(
-                    format=" %I:%M %p ", 
-                    background="0000007f", 
-                    foreground="#ffffff",#Color7
-                    spacing="2",
-                    **circle
+                    background="#00000070",
                 ),
                 
-                  
-                   
-                   
-                widget.Spacer(
-                    width=7,
-                    length=7,
-                    background="0000007f",
-                ),
-                  
-                   
-                widget.Spacer(length=7,**circle,background="0000007f"),
+                widget.Spacer(length=7,**circle,background="#00000070"),
+                widget.TextBox(
+
+                    "     ",
+                    foreground=Color0,
+                    **circle2,
+                    fontsize=15,
+                    mouse_callbacks={"Button1":lazy.function(qtile_menu)}
+                    ),
+                
+                widget.Spacer(length=9,**circle,background="#00000070"),
                 widget.CurrentLayoutIcon(
                     **circle,
                     scale=0.8,
                 ),
                 widget.GroupBox(
+                    font="SauceCodePro NFM Medium",
                     fontsize=21,
                     active="ffffff",
-                    background="0000007f",
+                    background="#00000070",
                     highlight_method="block",
-                    inactive = Color8, 
+                    inactive = Color15,
                     block_highlight_text_color=Color0,
-                    #highlight=Color4,
-                    #highlight_color=[Color1,Color5],
                     this_current_screen_border=Color7,
                     padding_y=-3,
                     padding_x=4,
-                    #rounded = True,
                     margin_x=3,
                     **circle,
+                    center_aligned=True,
+                    max_chars=50,
                 ),
-                     
-                widget.Spacer(length=7,**circle,background="0000007f"),
+                widget.Spacer(length=7,**circle,background="#00000070"),
 
 
+
+
+
+                
                 widget.WindowName(
                     padding=10,
-                    background="0000007f",
+                    background="#00000070",
+                    format="   {state}{name}",
                     empty_group_string="What a great wallpaper...",
                 ),
                 
 
+                #widget.TaskList(),
+                                widget.Spacer(
+                    width=7,
+                    length=7,
+                    background="#00000070",
+                ),
+                
+                widget.Spacer(length=6,**circle,background="#00000070"),
+                widget.Clock(
+                    fontsize=16,
+                    format="󰸗 %a %d %b " ,
+                    background="00000070", 
+                    #foreground=Color0,
+                    spacing="2",
 
-                widget.Spacer(length=5,**circle,background="0000007f"),
+                    **circle
+                ),
+                widget.Clock(
+                    fontsize=16,
+                    format=" 󰥔 %I:%M %p " ,
+                    background="00000070",
+                    foreground=Color0,
+                    padding=2,
+
+                    **circle2
+                ),
+                #widget.Spacer(length=6,**circle,background="#00000070"),
+                widget.OpenWeather(
+                    app_key = "4cf3731a25d1d1f4e4a00207afd451a2",
+                    cityid = "250441",#serch your city here https://openweathermap.org/find and you gonna find the id at the link like this for london https://openweathermap.org/city/2643743
+                    format = " {weather} {icon} {main_temp:.0f}°C",
+                    metric = True,
+                    padding=5,
+                    fontsize = 16,
+                    weather_symbols={
+                        "Unknown": "",
+                        "01d": " ",
+                        "01n": " ",
+                        "02d": "",
+                        "02n": " ",
+                        "03d": " ",
+                        "03n": " ",
+                        "04d": " ",
+                        "04n": " ",
+                        "09d": "⛆ ",
+                        "09n": "⛆ ",
+                        "10d": "",
+                        "10n": " ",
+                        "11d": "🌩",
+                        "11n": "🌩",
+                        "13d": "❄",
+                        "13n": "❄",
+                        "50d": "🌫",
+                        "50n": "🌫",
+                    },
+                    background = "00000070",
+                    **circle
+                ),
+
+                widget.Spacer(**circle,length=5,background="00000070"),
+
+                widget.Spacer(length = bar.STRETCH,background="#00000070"),
+
+
+
                 widget.TextBox(
-                    fontsize=14,
-                    text=" ",
-                    foreground="ffffff",
-                    background="0000007f",
+                    fontsize=16,
+                    text="  ",
+                    background="#00000070",
                     mouse_callbacks=Btop,
                     **circle
                 ),
-                
+
                 widget.Memory(
                     mouse_callbacks=Btop,
-                    background="0000007f",
-                    foreground="#ffffff",
-                    format=":{MemPercent}% ",
+                    background="#00000070",
+                    format="{MemPercent:.0f}% ",
                     **circle
                 ),
                 widget.TextBox(
                     mouse_callbacks=Btop,
                     fontsize=19,
-                    text=" 󰍛",
-                    foreground="ffffff",
-                    background="0000007f",
+                    text="󰍛 ",
+                    background="#00000070",
                     **circle
                 ),
+                widget.Spacer(length=-6,**circle),
                 widget.CPU(
                     mouse_callbacks=Btop,
-                    background="0000007f",
-                    foreground="#ffffff",
-                    format= ":{load_percent}% ",
+                    background="#00000070",
+                    format= "{load_percent:.0f}%",
                     update_interval=1,
                     **circle
                 ),
                
                 widget.ThermalSensor(
                     mouse_callbacks=Btop,
-                    background="0000007f",
-                    foreground="ffffff",
-                    format=" 󰔏 {temp:.1f}{unit} ",
+                    background="#00000070",
+                    format=" 󰔏 {temp:.0f}{unit} ",
                     tag_sensor="Core 0",
                     update_interval=1,
                     threshold=80,
                     foreground_alert="800000",
                     **circle,
                 ),
-                
-                widget.Spacer(length=7,background="0000007f"),
-                widget.Spacer(length=15,**circle,background="0000007f"),
+                widget.Spacer(length=7,background="#00000070"), 
+
+                widget.Spacer(length=7,**circle),
+                widget.WidgetBox(
+
+                widgets=[
+                    widget.TextBox(
+                        text="󱅫 ",
+                        **circle,
+                        mouse_callbacks={"Button1":lazy.spawn("dunstctl history-pop")}
+                    ),
+                    widget.CheckUpdates(
+                        distro="Arch_checkupdates",
+                        no_update_string="",
+                        background="#00000070", 
+                        colour_have_updates="ffffff",
+                        colour_no_updates="ffffff",
+                        fontsize=15,
+                        display_format=" !{updates}",
+                        mouse_callbacks={"Button1":lazy.spawn("kitty ./.config/qtile/update.sh")},
+                        **circle,
+                    ),
+                    widget.StatusNotifier(
+                        highlight_colour=Color7,
+                        menu_foreground=Color7,
+                        menu_foreground_highlighted=Color0,
+                        menu_background=Color1,
+                        separator_colour=Color7,
+                        menu_offset_y=10,
+                        padding=7,
+                        **circle,
+                        icon_size=20,
+                        icon_theme="Tela circle dark"
+                    ),
+                    ],
+                **circle2,
+                close_button_location="right",
+                text_closed="  ",
+                text_open="  ",
+                foreground=Color0,
+                ),
+
+                widget.Spacer(length=9,**circle),
+
+                widget.PulseVolume(
+                    **circle,
+                    icon_size=20,
+                    theme_path="/home/nizar/.local/share/icons/Breeze-Noir-White-Blue/status/22/",
+                ),
+
+                widget.Spacer(length=-8,**circle),
+
+                widget.PulseVolumeExtra(
+                    **circle,
+                    mode="bar",
+                    bar_colour_high=Color1,
+                    bar_colour_loud=Color1,
+                    bar_colour_mute=Color1,
+                    bar_colour_normal=Color1,
+                    bar_width=40,
+
+                    unmute_format='{volume}% ',
+                    fontsize=15
+                ),
+                 widget.KeyboardLayout(
+                    configured_keyboards=['us','ara'],
+                    background="#00000070",
+                    padding=7,
+                    **circle
+                ),
+
+
+                widget.WiFiIcon(
+                    background="#00000070",
+                    active_colour="#E1E1E1",
+                    padding_x=7,
+                    padding_y=3,
+                    **circle
+                ),
+
                 widget.UPowerWidget(
-                    background = "0000007f",
+                    background = "#00000070",
                     border_colour = "#ffffff",
                     border_critical_colour = "#cc0000",
                     border_charge_colour = "#ffffff",
@@ -525,7 +746,6 @@ screens = [
                     fill_normal = "#ffffff",
                     percentage_low = 0.4,
                     percentage_critical = 0.2,
-                    foreground="#ffffff",
                     text_charging="({percentage:.0f}%)",
                     text_discharging="{percentage:.0f}%",
                     text_displaytime=3666,
@@ -535,112 +755,46 @@ screens = [
                     **circle,
                 ),
 
-               
-                widget.Spacer(length=5,**circle,background="0000007f"),
-                widget.WiFiIcon(
-                    background="0000007f",
-                    active_colour="#E1E1E1",
-                    foreground="#ffffff",
-                    padding_x=7,
-                    padding_y=3,
-                    **circle
-                ),
-                #here you could add your language
-                widget.KeyboardLayout(
-                    configured_keyboards=['us'],
-                    background="0000007f",
-                    foreground="ffffff",
-                    padding=7,
-                    **circle
-                ),
+                
+                widget.Spacer(length=7,**circle,background="#00000070"), 
 
                 
-                #widget.Spacer(length=6,background="0000007f"),
-                widget.PulseVolume(
-                    **circle,
-                    padding=7,
-                    unmute_format=' {volume}%',
-                    background="0000007f",
-                    emoji=False,
-                    volume_app='amixer',
-                     
-                ),
-                #maybe this wouldnot work , check qtile docs and your backlight_name
-                widget.Backlight(
-                    fontsize=15,
-                    backlight_name="intel_backlight",
-                    **circle,
-                    format='󰃠 {percent:2.0%}',
-                    padding=5,
-                    update_interval=0.1,
-                ),
-
-                widget.Spacer(length=7,**circle),
-                widget.CheckUpdates(
-                    distro="Arch_checkupdates",
-                    no_update_string="No updates",
-                    background="0000007f", 
-                    foreground="ffffff",
-                    colour_have_updates="ffffff",
-                    colour_no_updates="ffffff",
-                    display_format="Updates:{updates}",
-                    mouse_callbacks={"Button1":lazy.spawn("kitty ./.config/qtile/update.sh")},
-                    **circle,
-                ),
-
-                widget.Spacer(length=7,**circle,background="0000007f"),
-
-                widget.Spacer(length=7,background="0000007f"),
                 
-                #widget.Spacer(length=5,background="0000007f",**circle),
-                widget.OpenWeather(
-                    app_key = "4cf3731a25d1d1f4e4a00207afd451a2",
-                    cityid = "2643743",#serch your city here https://openweathermap.org/find and you gonna find the id at the link like this for london https://openweathermap.org/city/2643743
-                    format = "{main_temp}°{icon}",
-                    metric = True,
-                    padding=5,
-                    fontsize = 14,
-                    background = "0000007f",
-                    foreground = "#ffffff",
-                    **circle
+                widget.TextBox(
+                        "⏻ ",
+                        **circle1,
+                        padding=20,
+                        fontsize=15,
+                        mouse_callbacks={"Button1":lazy.function(show_power_menu)}
                 ),
 
-                widget.Clock(
-                    format=" %d/%m ", 
-                    background="0000007f", 
-                    foreground="#ffffff",
-                    spacing="2",
-                    **circle
+                widget.Spacer(length=6,**circle,background="#00000070"),
+
+                widget.Spacer(
+                    width=10,
+                    length=0,
+                    background="#00000070",
                 ),
-
-
-                widget.QuickExit(
-                    countdown_format="[ {}  ]",
-                    default_text="LOGOUT",
-                    background="0000007f",
-                    padding_x=3,
-                    **circle1
-                ),
-
-                widget.Spacer(length=4,**circle,background="0000007f"),
-
-                
 
             ],
 
-            23,
+            25,
         #this ^^ is the bar hight 
             border_width=[0, 0,0,0],#Draw top and bottom borders
             border_color=[
-                "0000007f",
-                "0060cc",
-                "0000007f", 
-                "0060cc"
+                "#00000070",
+                "0070cc",
+                "#00000070", 
+                "0070cc"
             ],
-            margin = [7,10,0,10],
+            x=0,
+            y=0,
+            width=1920,
+            hight=1080,
+            margin = [5,10,0,10],
               # Borders are magenta (UP,SIDE,DOWN,SIDE)
             opacity=1,
-            background="0000007f",
+            background="00000070",
         ),
         # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
         # By default we handle these events delayed to already improve performance, however your system might still be struggling
@@ -688,12 +842,20 @@ floating_layout = layout.Floating(
     float_rules=[
         # Run the utility of `xprop` to see the wm class and name of an X client.
         *layout.Floating.default_float_rules,
+        Match(wm_class="qalculate-gtk"),  # gitk
         Match(wm_class="confirmreset"),  # gitk
         Match(wm_class="makebranch"),  # gitk
         Match(wm_class="maketag"),  # gitk
         Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(wm_class="copyq"),
+        Match(wm_class="krunner"),
+        Match(wm_class="plasma-emojier"),
+        Match(wm_class="wpg"),
+        Match(wm_class="lxappearance"),
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
+        Match(wm_class="korganizer"),  # GPG key password entry
+
     ]
 )
 auto_fullscreen = True
@@ -702,8 +864,4 @@ reconfigure_screens = True
 
 
 
-
-
-# We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
-# java that happens to be on java"s whitelist.
 wmname = "LG3D"
