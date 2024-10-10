@@ -1,16 +1,16 @@
 
-#from config import colordict
 from qtile_extras.widget import decorations
 import subprocess 
 import os
 import json
+import re 
+import datetime
 from libqtile import qtile
+from libqtile.widget import TextBox
 from qtile_extras import widget, layout
 from qtile_extras.widget.decorations import RectDecoration
 from qtile_extras.popup.toolkit import PopupRelativeLayout, PopupText, PopupImage ,PopupWidget,PopupGridLayout
 from libqtile.lazy import lazy
-
-
 
 
 colors = os.path.expanduser('~/.cache/wal/colors.json')
@@ -39,7 +39,11 @@ Color15=(colordict['colors']['color15'])
 #| (_| |  __/ |   \__ \   #
 # \__,_|\___|_|   |___/   #
 #                         #
-###########################
+##########################
+
+
+
+     #these two function are together make a simple app menu , to edit it you shoule change the icons , label and the action 
 def create_icon(filename, row, col):
     return PopupImage(
         filename=filename,
@@ -53,7 +57,7 @@ def create_label(text, row, col, command, font="Iosevka NF SemiBold",fontsize=15
         text=text,
         row=row,
         col=col,
-        col_span=9,  # Span across 6 columns
+        col_span=9,  # Span across 9 columns
         mouse_callbacks={"Button1": lazy.spawn(command)},
         font=font,
         fontsize=fontsize,
@@ -71,7 +75,7 @@ def qtile_menu(qtile):
         create_icon("~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/kitty.svg", 3, 0 ),
         
         create_label(" Browser", 0, 1, "firefox"),
-        create_label(" File Manager", 1, 1, "nemo"),
+        create_label(" File Manager", 1, 1, "thunar"),
         create_label(" Text Editor", 2, 1, "kitty -e lvim"),
         create_label(" Terminal", 3, 1, "kitty"),
         create_label(" Reload config", 4, 1, "qtile cmd-obj -o root -f reload_config"),
@@ -85,86 +89,17 @@ def qtile_menu(qtile):
         height=170,
         width=200,
         controls=controls,
-        border_width=3,
+        #border_width=3,
         border=Color7,
         background=Color1,
         hide_on_timeout=4,
         hide_interval=1,
     )
-    layout.show(x=8, y=38,hide_on_timeout=4,)
+    layout.show(x=10, y=38,hide_on_timeout=4,)
 
 
-
-"""
-def qtile_menu(qtile):
-
-    menu_items = [
-        ("~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/com.brave.Browser.svg", " Browser", "com.brave.Browser"),
-        ("~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/file-manager.svg", " file Manager", "nemo"),
-        ("~/.local/share/icons/hicolor/24x24/apps/lvim.svg", " Text Editor", "kitty -e lvim"),
-        ("~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/kitty.svg", " Terminal", "kitty"),
-    ]
-    controls = []
-    for row, (icon, text, command) in enumerate(menu_items):
-        callbacks = {"Button1": lazy.spawn(command)}
-        controls.extend([
-            PopupText("", row=row, col=0, col_span=10, background=Color2, mouse_callbacks=callbacks),  # Highlight background
-            PopupImage(filename=icon, row=row, col=1, mouse_callbacks=callbacks),
-            PopupText(text, row=row, col=2, col_span=6, font="Iosevka NF SemiBold", mouse_callbacks=callbacks),
-        ])
-
-    # Add the "Reload config" option
-    controls.append(PopupText("   Reload config", row=4, col=1, col_span=6, 
-                              mouse_callbacks={"Button1": lazy.spawn("qtile cmd-obj -o root -f reload_config")},
-                              font="Iosevka NF SemiBold"))
-
-    layout = PopupGridLayout(
-        qtile,
-        rows=5, cols=10,
-        height=170, width=200,
-        controls=controls,
-        border_width=3, border=Color7,
-        background=Color1
-    )
-    layout.show(x=8, y=38)
-
-    controls=[
-        #PopupWidget(
-         #   row=0,col=1,
-          #  col_span=9,
-           # widget=widget.WidgetBox(
-            #    widgets=[
-             #       widget.Image(filename="~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/com.brave.Browser.svg"),
-              #      widget.TextBox(text="Browser")
-               #     ],
-                #start_opened=True,text_open="",text_close="",close_button_location="right"),
-                 #),
-        #row=0,col=9,mouse_callbacks={"Button1":lazy.spawn("com.brave.Browser")}), 
-        PopupImage(filename="~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/brave.svg",row=0,col=1,mouse_callbacks={"Button1":lazy.spawn("com.brave.Browser")}),
-        PopupImage(filename="~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/file-manager.svg",row=1,col=1,mouse_callbacks={"Button1":lazy.spawn("nemo")}),
-        PopupImage(filename="~/.local/share/icons/hicolor/24x24/apps/lvim.svg",row=2,col=1,mouse_callbacks={"Button1":lazy.spawn("kitty -e lvim")}),
-        PopupImage(filename="~/.local/share/icons/Deepin2022-Dark/scalable@2x/apps/kitty.svg",row=3,col=1,mouse_callbacks={"Button1":lazy.spawn("kitty")}),
-        PopupText(" Browser",row=0,col=2,col_span=6,mouse_callbacks={"Button1":lazy.spawn("com.brave.Browser")},font="Iosevka NF SemiBold"),
-        PopupText(" file Manager",row=1,col=2,col_span=6,mouse_callbacks={"Button1":lazy.spawn("nemo")},font="Iosevka NF SemiBold",),
-        PopupText(" Text Editor",row=2,col=2,col_span=6,mouse_callbacks={"Button1":lazy.spawn("kitty -e lvim")},font="Iosevka NF SemiBold",),
-        PopupText(" Terminal",row=3,col=2,col_span=6,mouse_callbacks={"Button1":lazy.spawn("kitty")},font="Iosevka NF SemiBold",),
-        PopupText("   Reload config",row=4,col=1,col_span=6,mouse_callbacks={"Button1":lazy.spawn("qtile cmd-obj -o root -f reload_config")},font="Iosevka NF SemiBold",), 
-    ]
-    layout=PopupGridLayout(
-            qtile,
-            
-            rows=5,cols=10,
-            height=170,width=200,
-            controls=controls,
-            border_width=3,border=Color7,
-            background=Color1
-    )
-    layout.show(x=8,y=38)
-"""
-
-
-######################################
-def chooser(option):
+######################################tthis function choose what is the action should be when click yes on are_you_sure
+def chooser(option): 
     def choose(qtile):
         action =None
         if option == "logout":
@@ -176,10 +111,10 @@ def chooser(option):
         are_you_sure(qtile, action)
     return choose
 #######################################
-def show_power_menu(qtile):
+def show_power_menu(qtile): # this is for power options like power off sleep 
     time=subprocess.check_output("uptime -p | awk '{print \"Uptime: \" $2, $3, $4, $5}'", shell=True, text=True)
     time=time.strip()
-    controls_p = [
+    controls = [
 
         PopupImage(
             filename="/home/nizar/.local/share/icons/Deepin2022-Dark/32@2x/actions/system-log-out.svg",
@@ -255,7 +190,7 @@ def show_power_menu(qtile):
         border_width=3,
         border=Color1,
         height=200,
-        controls=controls_p,
+        controls=controls,
         background="00000060",
         initial_focus=None,
 
@@ -264,9 +199,9 @@ def show_power_menu(qtile):
     layout.show(centered=True)
 
 
-def are_you_sure(qtile,action):
+def are_you_sure(qtile,action): # it's clear what it dose , it show are you sure window for power optons like
     qtile.spawn("ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/dialog-question.oga")
-    controls_sure=[
+    controls=[
         PopupWidget(
             widget=widget.TextBox(
                 "  Are you sure about that?",
@@ -314,17 +249,17 @@ def are_you_sure(qtile,action):
         qtile,
         width=400,
         hight=170,
-        controls=controls_sure,
+        controls=controls,
         background="0000007f",
         border_width=3,
         border=Color1,
     )
     layout_sure.show(centered=True)
 
-def keylay(qtile):
+def keylay(qtile): # this one for showin a popup of current keyboard layout after changing it , it will be useful if you use more than one layout 
     thelay = subprocess.check_output("setxkbmap -query | grep layout | awk '{print $2}' | tr 'a-z' 'A-z'", shell=True, text=True)
     thelay = "󰌌  : "+thelay.strip()
-    controls_kb=[
+    controls=[
         PopupText(
             text=thelay,
             font="Iosevka NF SemiBold",
@@ -345,9 +280,118 @@ def keylay(qtile):
         height=60,
         background=Color1,
         border=Color7,
-        border_width=2,
-        controls=controls_kb,
+        border_width=0,
+        controls=controls,
         close_on_click=True,
         hide_on_timeout=2,
     )
     layout_kb.show(x=860,y=140)
+
+
+##### POWER PROFILE########
+
+def show_power_profile(qtile): # this for power profiles in stead of using the Terminal every time you want to change them 
+    current_profile = subprocess.check_output("powerprofilesctl get", shell=True, text=True).strip()
+
+    def create_profile_image(filename, row, highlight_filename, profile_name):
+        return PopupImage(
+            filename=filename,
+            row=row,
+            col=1,
+            col_span=3,
+            row_span=6,
+            highlight=Color8,
+            #highlight_method="",
+            highlight_filename=highlight_filename,
+            mouse_callbacks={
+                "Button1": lazy.spawn(f"powerprofilesctl set {profile_name}")
+            }
+        )
+
+    def create_profile_indicator(row, profile_name):
+        return PopupWidget(
+            widget=TextBox(
+                text="⯈" if current_profile == profile_name else "",
+                foreground=Color7,
+                fontsize=24,
+            ),
+            col=0,
+            row=row,
+            row_span=4
+        )
+
+    controls = [
+        create_profile_image("~/.config/qtile/assets/power-profile-power-saver.svg", 2,"~/.config/qtile/assets/power-profile-power-saver-dark.svg", "power-saver"),
+        create_profile_image("~/.config/qtile/assets/power-profile-balanced.svg", 10,"~/.config/qtile/assets/power-profile-balanced-dark.svg", "balanced"),
+        create_profile_image("~/.config/qtile/assets/power-profile-performance.svg", 18,"~/.config/qtile/assets/power-profile-performance-dark.svg", "performance"),
+        
+        create_profile_indicator(3, "power-saver"),
+        create_profile_indicator(11, "balanced"),
+        create_profile_indicator(19, "performance"),
+
+    ]
+
+
+
+    layout= PopupGridLayout(
+        qtile,
+        rows=26,
+        cols=4,
+        height=200,
+        width=110,
+        controls=controls,
+        #border_width=0,
+        #border=Color7,
+        background=Color1,
+        hide_on_timeout=4,
+        hide_interval=1,
+    )
+    layout.show(x=1765,y=38)
+
+def show_cal(qtile): # this function shows the calendar when you click at the date widget 
+    # Get today's day as an integer , to be able then to highligte it
+    today = datetime.datetime.now().day
+    
+    # Run the `cal` command and capture the output
+    cal_output = subprocess.check_output("cal", shell=True, text=True)
+    
+    # Split the calendar output into lines
+    cal_lines = cal_output.splitlines()
+
+    # Highlight the current day in the calendar output
+    highlighted_cal = []
+    for line in cal_lines:
+        # Search for the current day in the calendar line , it uses pango markup
+        highlighted_line = re.sub(rf"\b{today}\b", f'<span background="#f0f0f0" foreground="#0f0f0f" weight="bold">{today}</span>', line)
+        highlighted_cal.append(highlighted_line)
+    
+    # Join the lines back together
+    highlighted_cal_output = "\n".join(highlighted_cal)  
+    controls = [
+        PopupText(
+
+            highlighted_cal_output,
+            font="Iosevka NF SemiBold",
+            markup=True,
+            fontsize=18,
+            row=1,
+            col=1,
+            row_span=8,
+            col_span=8
+        )
+    ]
+
+    layout_cal = PopupGridLayout(
+        qtile,
+        rows=10, 
+        cols=10,
+        height=210,
+        width=250,
+        controls=controls,
+        background=Color1,
+        hide_interval=10,
+    )
+    layout_cal.show(relative_to_bar=True,x=720,y=10,hide_on_timeout=False)
+
+    
+
