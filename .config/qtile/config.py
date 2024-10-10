@@ -17,7 +17,7 @@
 #               /_/                               #
 ###################################################
 import os
-#import copy
+import time 
 import subprocess
 import json
 import qtile_extras.hook
@@ -29,8 +29,8 @@ from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import send_notification
 from qtile_extras.popup.toolkit import PopupRelativeLayout, PopupSlider, PopupText, PopupImage ,PopupWidget ,PopupAbsoluteLayout
-from functions import keylay ,show_power_menu , qtile_menu
-#from qtile_extras.widget import decorations
+from functions import keylay ,show_power_menu , qtile_menu, show_power_profile , show_cal
+
 
 
 colors = os.path.expanduser('~/.cache/wal/colors.json')
@@ -67,44 +67,49 @@ home= os.path.expanduser("~")
 #| | | | (_) | (_) |   <\__ \#
 #|_| |_|\___/ \___/|_|\_\___/#
 ##############################p
-# this hook is wierd af
 
-#@qtile_extras.hook.subscribe.up_battery_full
-# def battery_full(battery_name):
-#    send_notification("Power HQ",  "Battery is fully charged.")
-
+@hook.subscribe.startup
+def run_every_startup():#this for reload_config
+    send_notification("Qtile", "config is loaded successfully.")
+@hook.subscribe.startup_complete
 
 @qtile_extras.hook.subscribe.up_battery_low
-def battery_low():
+def battery_low(battery_name):
     send_notification("Power HQ", "Battery is running low.")
 
 @qtile_extras.hook.subscribe.up_battery_critical
-def battery_critical():
-    send_notification("Power HQ","Battery is critically low. Plug in power cable.")
-
-@hook.subscribe.startup_complete
-def run_every_startup():
-    send_notification("Qtile", "config realoading is done.")
+def battery_critical(battery_name):
+    send_notification("Power HQ","Battery is critically low. Plug in the power cable.")
 
 @qtile_extras.hook.subscribe.up_power_connected
 def plugged_in():
     send_notification("Power HQ","The power have been pluged in , Charging Up")
-    qtile.spawn("ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/power-plug.oga")
+    qtile.spawn("ffplay -nodisp -autoexit ~/.config/qtile/assets/power-plug.oga")
 @qtile_extras.hook.subscribe.up_power_disconnected
 def unplugged():
     send_notification("Power HQ", "The power cable is disconnected , Discharging")
-    qtile.spawn("ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/power-unplug.oga")
+    qtile.spawn("ffplay -nodisp -autoexit ~/.config/qtile/assets/power-unplug.oga")
 
 
 @hook.subscribe.startup_once
 def autostart():
-    home = os.path.expanduser("/home/nizar/.config/qtile/autostart.sh")
+    home = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([home])
     send_notification("Welcome","What are you gonna do today?")
-    lazy.spawn("sleep 2 ; ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/desktop-login.oga")
-@hook.subscribe.resume
-def wakeup():
-    send_notification("Welcome Back !","The system successfully awaken form sleep")
+    lazy.spawn("sleep 4 ; ffplay -nodisp -autoexit ~/.config/qtile/assets/desktop-login.oga")
+
+if "resume_hook_registered" not in globals():
+    @hook.subscribe.resume
+    def wakeup():
+        time.sleep(1)
+        send_notification("Welcome Back !", "The system successfully awakened from sleep")
+
+    # Set the flag to avoid re-registering
+    resume_hook_registered = True
+
+def run_script(qtile):
+    an=os.path.expanduser("~/an-test.sh")
+    subprocess.call(['/bin/bash', an])
 
 
 ##########################################################
@@ -118,9 +123,19 @@ def wakeup():
 #          |___/                               |___/     #
 ##########################################################
 keys = [
-   # i have the keys binded to the keycode so isntall xorg-xev to see all keys , thats becasuse i use more than one keyboard layout
+    Key (
+        [],"Print",
+        lazy.spawn("flameshot gui"),desc="take a screenshot by flameshot"
+        ),
+    Key ([mod],46,# this is mod + L to lock the device 
+         lazy.spawn("betterlockscreen -l dimblur"),desc="lock the screen using betterlockscreen"
+         ),
+    Key([mod],34,# it's mod + [
+        lazy.function(run_script),desc="run a wallpaper select rofi script"
+        ),
+   # i have the keys binded to the keycode so isntall xorg-xev to see all keys
     Key([mod],26,
-        lazy.spawn("nemo"),desc="mod+e open nemo"
+        lazy.spawn("thunar"),desc="mod+e open thunar"
     ),
     Key([alt],"Tab",lazy.run_extension(
         extension.WindowList(dmenu_command="rofi -show window")),desc="alt+tab opens rofi window"
@@ -130,7 +145,7 @@ keys = [
     ),
     # that is for my clipboard add yours
     Key([mod],55,
-        lazy.spawn("copyq show"),desc="mod+v shows copyq clipboard"
+        lazy.spawn("/usr/bin/diodon"),desc="mod+v shows copyq clipboard"
     ),
     # this to change the keyboardlayout if you are multi laguage you could change the lang at keyboardlayout widget
     Key([alt], "Shift_L",
@@ -154,12 +169,15 @@ keys = [
 
     Key([], "XF86AudioLowerVolume",
         lazy.spawn("pamixer -d 5"),
-        lazy.spawn(" ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/audio-volume-change.oga"),desc="lower the volume"
+        
+        lazy.spawn("paplay .config/qtile/assets/audio-volume-change.oga")
+
     ),
 
     Key([], "XF86AudioRaiseVolume",
         lazy.spawn("pamixer -i 5"),
-        lazy.spawn(" ffplay -nodisp -autoexit /usr/share/sounds/ocean/stereo/audio-volume-change.oga"),desc="raising the volume"
+        lazy.spawn("paplay .config/qtile/assets/audio-volume-change.oga")
+
     ),
     # for moving and changing window focus i use arrows if you are comfortable wiht hjkl you could edit it
     Key([mod], "Left",
@@ -256,6 +274,9 @@ keys = [
         [mod],41,
         lazy.window.toggle_fullscreen(),desc="mod+f Toggle fullscreen",
     ),
+    Key ([mod],58,
+         lazy.window.toggle_minimize(),desc="mod + m will toggle minimize"
+         ),
 
     Key(
         [mod], 28,
@@ -280,6 +301,14 @@ keys = [
         [mod], 56,
         lazy.spawn("firefox"), desc="mod +b spawn brave browser"
     ),
+    Key([
+        mod],"Next",
+        lazy.screen.next_group(),desc="mod + PgDn jump to the next group"
+        ),
+    Key(
+        [mod],"Prior",
+        lazy.screen.prev_group(),desc="mod + PgUp jump to the perior group"
+        ),
 
 ]
 ###########################################
@@ -346,9 +375,9 @@ layouts = [
      #layout.Zoomy( margin=9,border_focus="cce6ff",border_normal="0059b3",border_on_single=True,border_width= 5),
     layout.Columns(
          margin=7,
-         border_focus=Color7,
-         border_normal=Color1,
-         border_on_single=True,
+         border_focus=Color1,
+         border_normal=Color0,
+         border_on_single=False,
          border_width= 2
     ),
     layout.MonadTall(
@@ -447,15 +476,16 @@ VOLUME_POPUP = PopupRelativeLayout(
     height=50,
     background=Color1,
     border=Color7,
-    border_width=2,
+    border_width=0,
     controls=[
         PopupText(
             text="Volume:",
             name="text",
-            font="SourceCodePro",
+            font="Iosevka Nerd Font Mono Medium",
+            fontsize=14,
             pos_x=0.1,
             pos_y=0,
-            height=0.4,
+            height=0.5,
             width=0.8,
             v_align="middle",
             h_align="center",
@@ -463,7 +493,7 @@ VOLUME_POPUP = PopupRelativeLayout(
         PopupSlider(
             name="volume",
             pos_x=0.1,
-            pos_y=0.3,
+            pos_y=0.4,
             width=0.8,
             height=0.5,
             colour_below=Color7,
@@ -564,6 +594,7 @@ screens = [
                     background="00000070", 
                     #foreground=Color0,
                     spacing="2",
+                    mouse_callbacks={"Button1":lazy.function(show_cal)},
 
                     **circle
                 ),
@@ -579,7 +610,7 @@ screens = [
                 #widget.Spacer(length=6,**circle,background="#00000070"),
                 widget.OpenWeather(
                     app_key = "4cf3731a25d1d1f4e4a00207afd451a2",
-                    cityid = "250441",#serch your city here https://openweathermap.org/find and you gonna find the id at the link like this for london https://openweathermap.org/city/2643743
+                    cityid = "2643743",#serch your city here https://openweathermap.org/find and you gonna find the id at the link like this for london https://openweathermap.org/city/2643743
                     format = " {weather} {icon} {main_temp:.0f}°C",
                     metric = True,
                     padding=5,
@@ -606,7 +637,8 @@ screens = [
                         "50n": "🌫",
                     },
                     background = "00000070",
-                    **circle
+                    **circle,
+
                 ),
 
                 widget.Spacer(**circle,length=5,background="00000070"),
@@ -661,6 +693,7 @@ screens = [
                 widget.WidgetBox(
 
                 widgets=[
+
                     widget.TextBox(
                         text="󱅫 ",
                         **circle,
@@ -687,7 +720,7 @@ screens = [
                         padding=7,
                         **circle,
                         icon_size=20,
-                        icon_theme="Tela circle dark"
+                        icon_theme="Breeze"
                     ),
                     ],
                 **circle2,
@@ -702,7 +735,7 @@ screens = [
                 widget.PulseVolume(
                     **circle,
                     icon_size=20,
-                    theme_path="/home/nizar/.local/share/icons/Breeze-Noir-White-Blue/status/22/",
+                    theme_path="~/.config/qtile/assets/",
                 ),
 
                 widget.Spacer(length=-8,**circle),
@@ -720,7 +753,7 @@ screens = [
                     fontsize=15
                 ),
                  widget.KeyboardLayout(
-                    configured_keyboards=['us','ara'],
+                    configured_keyboards=['us','ara'],#you could remove this one if you dont need it 
                     background="#00000070",
                     padding=7,
                     **circle
@@ -745,7 +778,7 @@ screens = [
                     fill_critical = "#cc0000",
                     fill_normal = "#ffffff",
                     percentage_low = 0.4,
-                    percentage_critical = 0.2,
+                    percentage_critical = 0.25,
                     text_charging="({percentage:.0f}%)",
                     text_discharging="{percentage:.0f}%",
                     text_displaytime=3666,
@@ -753,6 +786,7 @@ screens = [
                     battery_width=27,
                     spacing=6,
                     **circle,
+                    mouse_callbacks={"Button3":lazy.function(show_power_profile)}
                 ),
 
                 
@@ -827,17 +861,15 @@ dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
 main = None
 follow_mouse_focus = True
-bring_front_click = False
+bring_front_click = True
 floats_kept_above = True
 cursor_warp = False
 floating_layout = layout.Floating(
-        margin=7,
-         border_focus="cce6ff",
-         border_normal=Color1,
-         border_on_single=True,
-         border_width= 2,
-
-
+    margin=7,
+    border_focus="cce6ff",
+    border_normal=Color1,
+    border_on_single=True,
+    border_width= 0,
 
     float_rules=[
         # Run the utility of `xprop` to see the wm class and name of an X client.
@@ -859,9 +891,11 @@ floating_layout = layout.Floating(
     ]
 )
 auto_fullscreen = True
-focus_on_window_activation = "smart"
+focus_on_window_activation = "never"
 reconfigure_screens = True
 
 
 
+# We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
+# java that happens to be on java"s whitelist.
 wmname = "LG3D"
