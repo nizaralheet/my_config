@@ -19,6 +19,58 @@ yay -S --needed gdk-pixbuf2  glibc  libnotify  librsvg  pango  python python-cai
 - For text editor I use [lunarvim](https://github.com/LunarVim/LunarVim) .
 - For the gtk theme and icons i use flatcolor theme and flattrcolor icons they are in  [wpgtk-templates](https://github.com/deviantfero/wpgtk-templates) and i use [tela-cirle](https://github.com/vinceliuice/Tela-circle-icon-theme) for rofi 
 - For themeing [chromium based browsers](https://github.com/metafates/ChromiumPywal) and [firefox](https://github.com/Frewacom/pywalfox/) install the extension for every one of them
-- the font : ```ttf-sourcecodepro-nerd``` 
+- the font : ```ttf-sourcecodepro-nerd```
 
+## Key Bindings 
+
+
+
+| **Key Combination**                      | **Action**                                     |
+|------------------------------------------|------------------------------------------------|
+| **System Controls**                      |                                                |
+| `Print`                                  | 🖼️ Take a screenshot with Flameshot            |
+| `mod + L`                                | 🔒 Lock the screen using Betterlockscreen       |
+| `XF86MonBrightnessUp`                    | 🔆 Increase brightness                          |
+| `XF86MonBrightnessDown`                  | 🔅 Decrease brightness                          |
+| `XF86AudioMute`                          | 🔇 Mute volume                                  |
+| `XF86AudioLowerVolume`                   | 🔉 Decrease volume                              |
+| `XF86AudioRaiseVolume`                   | 🔊 Increase volume                              |
+| `mod + Control + R`                      | 🔄 Reload the Qtile config                      |
+| `mod + Control + Q`                      | ❌ Shutdown Qtile                               |
+| `mod + N`                                | 🔄 Reset all window sizes                       |
+| **Application Launchers & Rofi**         |                                                |
+| `mod + [`                                | 🖼️ Run a wallpaper select Rofi script           |
+| `mod + E`                                | 📂 Open Thunar file manager                     |
+| `alt + Tab`                              | 🔄 Open Rofi window switcher                    |
+| `mod + ,`                                | 😀 Open Rofi emojis picker                      |
+| `mod + V`                                | 📋 Show CopyQ clipboard manager                 |
+| `mod + R`                                | 🚀 Spawn Rofi app launcher                      |
+| `mod + B`                                | 🌐 Spawn browser                                |
+| **Window Management**                    |                                                |
+| `mod + Left`                             | ⬅️ Move focus to the left                       |
+| `mod + Right`                            | ➡️ Move focus to the right                      |
+| `mod + Down`                             | ⬇️ Move focus downward                          |
+| `mod + Up`                               | ⬆️ Move focus upward                            |
+| `mod + Space`                            | 🔄 Move window focus to another window          |
+| `mod + Shift + Left`                     | ⬅️ Move window to the left                      |
+| `mod + Shift + Right`                    | ➡️ Move window to the right                     |
+| `mod + Shift + Down`                     | ⬇️ Move window downward                         |
+| `mod + Shift + Up`                       | ⬆️ Move window upward                           |
+| `mod + Control + Left`                   | ⬅️ Grow window to the left                      |
+| `mod + Control + Right`                  | ➡️ Grow window to the right                     |
+| `mod + Control + Down`                   | ⬇️ Grow window downward                         |
+| `mod + Control + Up`                     | ⬆️ Grow window upward                           |
+| `mod + Shift + Return`                   | 🔀 Toggle between split and unsplit sides of stack |
+| `mod + Tab`                              | 🔄 Toggle between layouts                       |
+| `mod + W`                                | ❌ Kill the focused window                      |
+| `mod + F`                                | 🔳 Toggle fullscreen                            |
+| `mod + M`                                | 🗜️ Toggle minimize                              |
+| `mod + T`                                | 🗂️ Toggle floating                              |
+| **Group Management**                     |                                                |
+| `mod + PgDn`                             | ⬇️ Jump to the next group                       |
+| `mod + PgUp`                             | ⬆️ Jump to the previous group                   |
+| `mod + 1-5`                              | 🔢 Switch to group 1-5                          |
+| `mod + Shift + 1-5`                      | 🔢 Switch to & move focused window to group 1-5   |
+
+---
 
