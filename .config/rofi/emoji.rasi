@@ -1,0 +1,43 @@
+@import "~/.config/rofi/config.rasi"
+
+window {
+    width:  30.0000% ;
+    height: 50.0000% ;
+}
+textbox {
+  vertical-align:   1;
+  horizontal-align: 1;
+}
+*{
+      font :" Iosevka Nerd Font Mono Bold 19";
+}
+configuration {
+  show-icons: true;
+}
+
+
+
+
+listview {
+    layout: center;
+  columns:       7;
+  lines:         1;
+  height:        80px;
+  cycle:         true;
+  dynamic:       true;
+  reverse:       false;
+  fixed-columns: true;
+}
+
+element {
+    children: [element-text,"  "];
+    orientation: vertical;
+    padding: 7  ;
+    border: 3 ;
+    height: 80px;
+}
+
+element-text {
+  vertical-align:   1;
+  horizontal-align: 1;
+}
